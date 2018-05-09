@@ -42,6 +42,7 @@
   define("CROP_IMAGE_SERVICE_PATH",SITE_BASE_PATH."/common/php/cropImagePoly.php");
 
   //configure viewer defaults for site
+  define("SHOWEXPORTBUTTON",false); // defaults to true so this is required to turn export off
   define("SHOWVIEWERCONTENTOUTLINE",false);
   define("SHOWIMAGEVIEW",true);
   define("USEPHYSICALVIEW",false);
