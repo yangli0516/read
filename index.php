@@ -129,6 +129,9 @@
         if (typeof linkTypeInfo == "undefined") {
           linkTypeInfo = null;
         }
+        if (typeof termInfo == "undefined") {
+          termInfo = null;
+        }
         if (typeof basepath == "undefined") {
           basepath = null;
         }
@@ -150,6 +153,7 @@
                                                  tagIDToAnoID: ((typeof tagIDToAnoID == "undefined")?"":tagIDToAnoID),
                                                  basepath: basepath,
                                                  entityInfo: entityInfo,
+                                                 termInfo: termInfo,
                                                  username: "<?= @$username?$username:"unknown"?>" });
         layoutManager = new MANAGERS.LayoutManager({ navPanel: navPanelDiv,
                                                      contentDiv: contDiv,
