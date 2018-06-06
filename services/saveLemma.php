@@ -548,6 +548,11 @@ if (count($errors) == 0) {
     default:
       array_push($errors,"unknown command");
   }
+  if ($lemma->getScratchProperty("entry")) { //clear cached entry html
+    $lemma->storeScratchProperty("entry",'');
+    $lemma->save();
+  }
+
 }
 
 /*
