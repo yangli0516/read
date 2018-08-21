@@ -28,8 +28,8 @@
 */
 
 
-require_once (dirname(__FILE__) . '/../../config.php');//get defines
-require_once (dirname(__FILE__) . '/DBManager.php');//get database interface
+require_once dirname(__FILE__) . '/../../config.php';
+require_once dirname(__FILE__) . '/DBManager.php';
 require_once dirname(__FILE__) . '/../../model/entities/Terms.php';
 require_once dirname(__FILE__) . '/../../model/entities/Entity.php';
 // add required for switchInfo
@@ -60,9 +60,9 @@ require_once dirname(__FILE__) . '/../../model/entities/Attribution.php';
 * @author Stephen White  <stephenawhite57@gmail.com>
 */
 
-class Polygon implements JsonSerializable{
-
-  //*******************************PRIVATE MEMBERS************************************
+class Polygon implements JsonSerializable
+{
+//*******************************PRIVATE MEMBERS************************************
 
   /**
   * private member variables
@@ -79,22 +79,23 @@ class Polygon implements JsonSerializable{
   * @param string|null with each point in the form of (x,y) or null
   * @access public
   */
-  public function __construct( $points = null ) {
+  public function __construct( $points = null ) 
+  {
     if (is_string($points)) {// this
-      preg_match_all("/\((\d+),(\d+)\)/",$points,$match);
+      preg_match_all("/\((\d+),(\d+)\)/", $points, $match);
       $cnt = count($match[0]);
       if ($cnt > 2) {
         $this->_points = array();
-        $center_x = $center_y = 0;
-        for($i=0;$i<$cnt;$i++){ // go through all points
+        $xCenter = $yCenter = 0;
+        for ($i=0;$i<$cnt;$i++) { // go through all points
           $x = intval($match[1][$i]);
           $y =  intval($match[2][$i]);
-          $center_x += $x;
-          $center_y += $y;
-          $v = array($x,$y);
-          array_push($this->_points,$v);
+          $xCenter += $x;
+          $yCenter += $y;
+          $v = array($x, $y);
+          array_push($this->_points, $v);
         }
-        $this->_center = array(round($center_x/$cnt),round($center_y/$cnt));
+        $this->_center = array(round($xCenter/$cnt),round($yCenter/$cnt));
       }
     }
   }
@@ -106,7 +107,8 @@ class Polygon implements JsonSerializable{
   *
   * @return array of members for serialization
   */
-  public function jsonSerialize() {
+  public function jsonSerialize() 
+  {
 
     return $this->_points;
   }
@@ -117,8 +119,9 @@ class Polygon implements JsonSerializable{
   * @param int $x shift in x direction
   * @param int $y shift in y direction
   */
-  public function translate( $x = 0, $y = 0 ) {
-    $this->_points = getTranslatedPoly($this->_points,$x,$y);
+  public function translate( $x = 0, $y = 0 ) 
+  {
+    $this->_points = getTranslatedPoly($this->_points, $x, $y);
   }
 
   /**
@@ -126,7 +129,8 @@ class Polygon implements JsonSerializable{
   *
   * @return true|false  returns true if offsets are set and width and height are non zero has an Entity or false if not
   */
-  public function valid() {
+  public function valid() 
+  {
     return isset($this->_points) && count($this->_points) > 2;
   }
 
@@ -136,7 +140,8 @@ class Polygon implements JsonSerializable{
   * Get bounding rectangle
   * @return int array  of point for the bounding rectangle of this polygon
   */
-  public function getBoundingRect() {
+  public function getBoundingRect() 
+  {
     return getBoundingRect($this->_points);
   }
 
@@ -144,7 +149,8 @@ class Polygon implements JsonSerializable{
   * Get point
   * @return int array of points for this polygon
   */
-  public function getPoints() {
+  public function getPoints() 
+  {
     return $this->_points;
   }
 
@@ -152,7 +158,8 @@ class Polygon implements JsonSerializable{
   * Get center point
   * @return int array of x,y center point for this polygon
   */
-  public function getCenter() {
+  public function getCenter() 
+  {
     return $this->_center;
   }
 
@@ -160,10 +167,11 @@ class Polygon implements JsonSerializable{
   * Get points as a string ((x1,y1),(x2,y2),....,(xn,yn))
   * @return string representing the vertices of this polygon
   */
-  public function getPolygonString() {
+  public function getPolygonString() 
+  {
     $str = "(";
     $cnt = count($this->_points);
-    for($i=0;$i<$cnt;$i++){ // go through all points and output (x,y) for each
+    for ($i=0; $i<$cnt; $i++) { // go through all points and output (x,y) for each
       if ($i) {
         $str .= ",";
       }
@@ -176,11 +184,12 @@ class Polygon implements JsonSerializable{
   * Get points as a Json string [[x1,y1],[x2,y2],....,[xn,yn]]
   * @return string representing the vertices of this polygon
   */
-  public function getPolygonJson() {
+  public function getPolygonJson() 
+  {
     $str = "[";
     $cnt = count($this->_points);
-    for($i=0;$i<$cnt;$i++){ // go through all points and output [x,y] for each
-      if($i){
+    for ($i=0; $i<$cnt; $i++) { // go through all points and output [x,y] for each
+      if ($i) {
         $str .= ",";//separate the points
       }
       $str .= "[".$this->_points[$i][0].",".$this->_points[$i][1]."]";
@@ -194,7 +203,8 @@ class Polygon implements JsonSerializable{
   * Sets the points for this polygon
   * @param int  array $points
   */
-  public function setPoints($points) {
+  public function setPoints($points) 
+  {
     $this->_points = $points;
   }
 
@@ -218,7 +228,8 @@ class Polygon implements JsonSerializable{
 * @author Stephen White  <stephenawhite57@gmail.com>
 */
 
-class BoundingBox{
+class BoundingBox
+{
 
   //*******************************PRIVATE MEMBERS************************************
 
@@ -240,21 +251,23 @@ class BoundingBox{
   * @access public
   * @todo  change security to use stored Proc for compare userAccessIDs with VisibilityIDs
   */
-  public function __construct( $points = null ) {
+  public function __construct( $points = null ) 
+  {
     if (is_string($points)) {// this is an ID so need to query the db
-      preg_match_all("/\((\d+),(\d+)\)/",$points,$match);
+      preg_match_all("/\((\d+),(\d+)\)/", $points, $match);
       $cnt = count($match[0]);
       if ($cnt) {
         $x1 = $y1 = 1000000;
         $x2 = $y2 = 0;
-        for($i=0;$i<$cnt;$i++){ // go through all points and find min and max
-          $x = intval($match[1][$i]);
+        // go through all points and find min and max
+       for ($i=0; $i<$cnt; $i++) {
+           $x = intval($match[1][$i]);
           $y = intval($match[2][$i]);
           $x1 = min($x1, $x);
           $x2 = max($x2, $x);
           $y1 = min($y1, $y);
           $y2 = max($y2, $y);
-        }
+       }
       }
       if ($cnt == 1){//case where single point so assume this point is lowerLeft and use 0,0 as upperRight
         $x1 = $y1 = 0;
@@ -274,7 +287,8 @@ class BoundingBox{
   * @param int $x shift in x direction
   * @param int $y shift in y direction
   */
-  public function translate( $x = 0, $y = 0 ) {
+  public function translate( $x = 0, $y = 0 ) 
+  {
     $this->_offsetx += $x;
     $this->_offsety += $y;
   }
@@ -284,7 +298,8 @@ class BoundingBox{
   *
   * @return true|false  returns true if offsets are set and width and height are non zero has an Entity or false if not
   */
-  public function valid() {
+  public function valid() 
+  {
     return isset($this->_offsetx) &&
     isset($this->_offsety) &&
     isset($this->_width) && is_int($this->_width) && $this->_width > 0 &&
@@ -297,7 +312,8 @@ class BoundingBox{
   * Get the X offset for this bounding box
   * @return int x offset
   */
-  public function getXOffset() {
+  public function getXOffset() 
+  {
     return $this->_offsetx;
   }
 
@@ -305,7 +321,8 @@ class BoundingBox{
   * Get the Y offset for this bounding box
   * @return int y offset
   */
-  public function getYOffset() {
+  public function getYOffset() 
+  {
     return $this->_offsety;
   }
 
@@ -313,7 +330,8 @@ class BoundingBox{
   * Get the width for this bounding box
   * @return int width
   */
-  public function getWidth() {
+  public function getWidth() 
+  {
     return $this->_width;
   }
 
@@ -321,7 +339,8 @@ class BoundingBox{
   * Get the Height for this bounding box
   * @return int height
   */
-  public function getHeight() {
+  public function getHeight() 
+  {
     return $this->_height;
   }
 
@@ -329,15 +348,18 @@ class BoundingBox{
   * Get points for this bounding box
   * @return string points
   */
-  public function getPoints() {
-    return "{'(".$this->_offsetx.",".$this->_offsety.")','(".($this->_offsetx + $this->_width).",".($this->_offsety + $this->_height).")'}";
+  public function getPoints() 
+  {
+    return "{'(".$this->_offsetx.",".$this->_offsety.")','(".($this->_offsetx + $this->_width).",".
+            ($this->_offsety + $this->_height).")'}";
   }
 
   /**
   * Get points as a string ((x1,y1),(x2,y2),....,(xn,yn))
   * @return string representing the vertices of this polygon
   */
-  public function getPolygonString() {
+  public function getPolygonString() 
+  {
     return "((".$this->_offsetx.",".$this->_offsety."),(".
                ($this->_offsetx + $this->_width).",".$this->_offsety."),(".
                ($this->_offsetx + $this->_width).",".($this->_offsety + $this->_height)."),(".
@@ -350,7 +372,8 @@ class BoundingBox{
   * Sets the X offset for this bounding box
   * @param int $x offset
   */
-  public function setXOffset($x) {
+  public function setXOffset($x) 
+  {
     $this->_offsetx = $x;
   }
 
@@ -358,7 +381,8 @@ class BoundingBox{
   * Sets the Y offset for this bounding box
   * @param int $y offset
   */
-  public function setYOffset($y) {
+  public function setYOffset($y) 
+  {
     $this->_offsety = $y;
   }
 
@@ -366,7 +390,8 @@ class BoundingBox{
   * Sets the width for this bounding box
   * @param int $w width
   */
-  public function setWidth($w) {
+  public function setWidth($w) 
+  {
     $this->_width = $w;
   }
 
@@ -374,7 +399,8 @@ class BoundingBox{
   * Sets the Height for this bounding box
   * @param int $h height
   */
-  public function setHeight($h) {
+  public function setHeight($h) 
+  {
     $this->_height = $h;
   }
 
@@ -390,19 +416,20 @@ class BoundingBox{
 * @param BoundingBox|Polygon $boundary
 * @return string returns cropping URL service call or the $imageURL
 */
-function constructCroppedImageURL($imageURL, $boundary) {
-  if ($boundary){
+function constructCroppedImageURL($imageURL, $boundary) 
+{
+  if ($boundary) {
     $url = CROP_IMAGE_SERVICE_PATH."?url=$imageURL";
-    if (is_a($boundary,'BoundingBox') && $boundary->valid()){
+    if (is_a($boundary, 'BoundingBox') && $boundary->valid()){
       $url .= "&x=".$boundary->getXOffset().
       "&y=".$boundary->getYOffset().
       "&w=".$boundary->getWidth().
       "&h=".$boundary->getHeight();
       return $url;
-    }else if (is_a($boundary,'Polygon') && $boundary->valid()){
+    }else if (is_a($boundary, 'Polygon') && $boundary->valid()){
       $url .= "&polygons=[".$boundary->getPolygonJson()."]";
       return $url;
-    }else if (is_array($boundary) && is_a($boundary[0],'Polygon')){
+    }else if (is_array($boundary) && is_a($boundary[0], 'Polygon')){
       $url .= "&polygons=".json_encode($boundary);
       return $url;
     }
@@ -418,9 +445,9 @@ function constructCroppedImageURL($imageURL, $boundary) {
 * @param int $newOrigX
 * @return int array of points for the translated polygon
 */
-function getTranslatedPoly($points,$newOrigX, $newOrigY, $forceSerial = false) {
+function getTranslatedPoly($points, $newOrigX, $newOrigY, $forceSerial = false) {
   $cnt = count($points); // find number of points
-  if(!$cnt || (!$newOrigX && !$newOrigY)) return $points;
+  if (!$cnt || (!$newOrigX && !$newOrigY)) return $points;
   if ( is_array($points[0]) && count($points[0] === 2)) {
     $format = 'tuples';
   }else{
@@ -428,10 +455,10 @@ function getTranslatedPoly($points,$newOrigX, $newOrigY, $forceSerial = false) {
   }
   $poly = array();
   for($i=0;$i<$cnt;$i++){
-    if($format == 'serial') {
+    if ($format == 'serial') {
       array_push($poly,($points[$i]+$newOrigX), ($points[$i+1]+$newOrigY));
       $i++;
-    }else if($format == 'tuples' && $forceSerial) {//return seral format
+    }else if ($format == 'tuples' && $forceSerial) {//return seral format
       array_push($poly,($points[$i][0]+$newOrigX), ($points[$i][1]+$newOrigY));
     }else{
       array_push($poly,array(($points[$i][0]+$newOrigX), ($points[$i][1]+$newOrigY)));
@@ -448,21 +475,21 @@ function getTranslatedPoly($points,$newOrigX, $newOrigY, $forceSerial = false) {
 */
 function getPolygonCenter($points) {
   $cnt = count($points); // find number of points
-  if(!$cnt || $cnt < 3 || !is_array($points)) return null;
-  $center_x = $center_y = 0;
+  if (!$cnt || $cnt < 3 || !is_array($points)) return null;
+  $xCenter = $yCenter = 0;
   if ( is_array($points[0]) && count($points[0]) === 2) {//tuples
     for($i=0;$i<$cnt;$i++){
-      $center_x += $points[$i][0];
-      $center_y += $points[$i][1];
+      $xCenter += $points[$i][0];
+      $yCenter += $points[$i][1];
     }
   }else{
     for($i=0;$i<$cnt;){
-      $center_x += $points[$i];
-      $center_y += $points[$i+1];
+      $xCenter += $points[$i];
+      $yCenter += $points[$i+1];
       $i +=2;
     }
   }
-  return array(round($center_x/$cnt),round($center_y/$cnt));
+  return array(round($xCenter/$cnt),round($yCenter/$cnt));
 }
 
 /**
@@ -473,26 +500,26 @@ function getPolygonCenter($points) {
 */
 function getBoundingRect($points) {
   $cnt = count($points); // find number of points
-  if(!$cnt) return null;
+  if (!$cnt) return null;
   $x1 = $y1 = 10000000;//upper left
   $x2 = $y2 = 0; // lower
   if ( is_array($points[0]) && count($points[0]) === 2) {//tuples
     for($i=0;$i<$cnt;$i++){
-      $x1 = min($x1,$points[$i][0]);
-      $x2 = max($x2,$points[$i][0]);
-      $y1 = min($y1,$points[$i][1]);
-      $y2 = max($y2,$points[$i][1]);
+      $x1 = min($x1, $points[$i][0]);
+      $x2 = max($x2, $points[$i][0]);
+      $y1 = min($y1, $points[$i][1]);
+      $y2 = max($y2, $points[$i][1]);
     }
   }else{
     for($i=0;$i<$cnt;){
-      $x1 = min($x1,$points[$i]);
-      $x2 = max($x2,$points[$i]);
-      $y1 = min($y1,$points[$i+1]);
-      $y2 = max($y2,$points[$i+1]);
+      $x1 = min($x1, $points[$i]);
+      $x2 = max($x2, $points[$i]);
+      $y1 = min($y1, $points[$i+1]);
+      $y2 = max($y2, $points[$i+1]);
       $i +=2;
     }
   }
-  return array($x1,$y1,$x2,$y1,$x2,$y2,$x1,$y2);
+  return array($x1, $y1, $x2, $y1, $x2, $y2, $x1, $y2);
 }
 
 /**
@@ -503,14 +530,14 @@ function getBoundingRect($points) {
 */
 function pointsArray2ArrayOfTuples($points) {
   $cnt = count($points); // find number of points
-  if(!$cnt) return null;
+  if (!$cnt) return null;
   if ( is_array($points) ) {
     if ( is_array($points[0]) && count($points[0]) === 2) {//tuples
       return $points;
     }else if ((count($points)%2)===0){//even number
       $tuples = array();
       for($i=0;$i<$cnt;){
-        array_push($tuples,array($points[$i],$points[$i+1]));
+        array_push($tuples,array($points[$i], $points[$i+1]));
         $i +=2;
       }
       return $tuples;
@@ -526,7 +553,7 @@ function pointsArray2ArrayOfTuples($points) {
 * @param mixed $url
 * @return resource|null
 */
-function loadURLContent($url,$raw = false) {
+function loadURLContent($url, $raw = false) {
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_COOKIEFILE, '/dev/null');
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);  //return the output as a string from curl_exec
@@ -539,9 +566,9 @@ function loadURLContent($url,$raw = false) {
   curl_setopt($ch, CURLOPT_TIMEOUT, 30);  // timeout after ten seconds
   curl_setopt($ch, CURLOPT_MAXREDIRS, 5);  // no more than 5 redirections
 
-  if (preg_match("/http/",$url)) {
+  if (preg_match("/http/", $url)) {
     curl_setopt($ch, CURLOPT_URL, $url);
-  } else if (preg_match("/https/",$url)) {
+  } else if (preg_match("/https/", $url)) {
     curl_setopt($ch, CURLOPT_URL, $url);
   } else {
     curl_setopt($ch, CURLOPT_URL, SITE_ROOT.$url);
@@ -554,12 +581,12 @@ function loadURLContent($url,$raw = false) {
     error_log("$error ($code)" . " url = ". $url);
     curl_close($ch);
     return false;
-  } else if (!$data || preg_match("/401 Unauthorized/",$data)) {
+  } else if (!$data || preg_match("/401 Unauthorized/", $data)) {
     curl_close($ch);
-    if (preg_match("/130\.223\.29\.184/",$data) || !$data) {
-      $path = preg_replace("/^.*images/",DOCUMENT_ROOT."/images",$url);
+    if (preg_match("/130\.223\.29\.184/", $data) || !$data) {
+      $path = preg_replace("/^.*images/",DOCUMENT_ROOT."/images", $url);
       $data = file_get_contents($path);
-      if($data){
+      if ($data){
         if ($raw) {
           return $data;
         } else {
@@ -570,7 +597,7 @@ function loadURLContent($url,$raw = false) {
     }
   } else {
     curl_close($ch);
-    if($data){
+    if ($data){
       if ($raw) {
         return $data;
       } else {
@@ -599,10 +626,10 @@ function loadURLContent($url,$raw = false) {
 
 function getTermInfoForLangCode($langCode = 'en'){
   static $termInfos = array();
-  if (array_key_exists($langCode,$termInfos)) {
+  if (array_key_exists($langCode, $termInfos)) {
     return $termInfos[$langCode];
   }
-  $enumLables = array('SystemList','ContentList','EntityList','List-Single','List-Multiple','List-MultipleOrdered');
+  $enumLables = array('SystemList', 'ContentList', 'EntityList', 'List-Single', 'List-Multiple', 'List-MultipleOrdered');
   $termInfo = array('idByTerm_ParentLabel' => array(),
     'labelByID' => array(),
     'termByID' => array(),
@@ -627,34 +654,34 @@ function getTermInfoForLangCode($langCode = 'en'){
     if (in_array($row['trm_label'], $enumLables)) {
       $termInfo['enumTypeIDs'][$row['trm_id']] = 1;
     }
-    if (strpos($row['trm_label'],'FK-') === 0) {
+    if (strpos($row['trm_label'], 'FK-') === 0) {
       $subtype = array();
-      if(strpos($row['trm_label'],'Hom')) {
+      if (strpos($row['trm_label'], 'Hom')) {
         $subtype['ho'] = 1;
-      }else  if(strpos($row['trm_label'],'Het')) {
+      }else  if (strpos($row['trm_label'], 'Het')) {
         $subtype['he'] = 1;
       }else{
         $subtype['pr'] = 1;
       }
-      if(strpos($row['trm_label'],'Multi')) {
+      if (strpos($row['trm_label'], 'Multi')) {
         $subtype['mu'] = 1;
       }else{
         $subtype['si'] = 1;
       }
-      if(strpos($row['trm_label'],'Ord')) {
+      if (strpos($row['trm_label'], 'Ord')) {
         $subtype['ord'] = 1;
       }
       $termInfo['fkTypeIDs'][$row['trm_id']] = $subtype;
     }
-    if (strpos($row['trm_label'],'Automation') === 0) {
+    if (strpos($row['trm_label'], 'Automation') === 0) {
       $termInfo['automationTypeIDs'][$row['trm_id']] = 1;
     }
-    if (strpos($row['trm_label'],'(UI)') === 0) {
+    if (strpos($row['trm_label'], '(UI)') === 0) {
       $termInfo['uiAssistTypeIDs'][$row['trm_id']] = 1;
     }
   }
   foreach ($termInfo['parentIDByID'] as $trmID => $pTrmID) {
-    $termInfo['idByTerm_ParentLabel'][mb_strtolower($termInfo['labelByID'][$trmID].($pTrmID?'-'.$termInfo['labelByID'][$pTrmID]:''),'utf-8')] = $trmID;
+    $termInfo['idByTerm_ParentLabel'][mb_strtolower($termInfo['labelByID'][$trmID].($pTrmID?'-'.$termInfo['labelByID'][$pTrmID]:''), 'utf-8')] = $trmID;
   }
   $termInfos[$langCode] = $termInfo;
   return $termInfo;
@@ -689,11 +716,11 @@ function getUserLookup() {
   if (!$userIDToInfoLookup){
     $userIDToInfoLookup = array();
     $dbMgr = new DBManager();
-    $dbMgr->query("SELECT ugr_id, ugr_given_name, ugr_family_name, concat(ugr_given_name,' ', ugr_family_name) as ugr_fullname".
+    $dbMgr->query("SELECT ugr_id, ugr_given_name, ugr_family_name, concat(ugr_given_name, ' ', ugr_family_name) as ugr_fullname".
       " FROM usergroup where ugr_given_name is not null or ugr_family_name is not null");
     while($row = $dbMgr->fetchResultRow()){
       $key = $row['ugr_id'];
-      if (!array_key_exists($key,$userIDToInfoLookup)) {
+      if (!array_key_exists($key, $userIDToInfoLookup)) {
         $userIDToInfoLookup[$key] = array( "givenName"=>$row['ugr_given_name'],
           "familyName"=>$row['ugr_family_name'],
           "fullName"=>$row['ugr_fullname']);
@@ -732,7 +759,7 @@ $tagIDToAnoID = array();
 */
 
 function getTagsInfo() {
-  global $entTagToLabel,$tagIDToAnoID,$entTagToPath;
+  global $entTagToLabel, $tagIDToAnoID, $entTagToPath;
   $tagsInfo = null;
   $annoTypeTerms = new Terms("trm_labels::hstore->'en' = 'AnnotationType'",null,null);
   if ($annoTypeTerms && $annoTypeTerms->getCount() > 0 ){
@@ -779,8 +806,8 @@ $parentTermsWithNumericSubterms = array("BaseType"=>"BT-","FootMarkType"=>"FMT-"
 * @return mixed[] $subTagsInfo of label,id,value,items for a given type
 */
 
-function getSubTagsStructure($trmID, $ctxPos = "",$preLabel="",$numericSort = false) {
-  global $entTagToLabel,$entTagToPath,$tagIDToAnoID,$parentTermsWithNumericSubterms;
+function getSubTagsStructure($trmID, $ctxPos = "", $preLabel="", $numericSort = false) {
+  global $entTagToLabel, $entTagToPath, $tagIDToAnoID, $parentTermsWithNumericSubterms;
   $subTagsInfo = null;
   //get all subTagTerms ordered alphabetically
   $annoSubTagTerms = new Terms("trm_parent_id = $trmID",($numericSort?"cast(trm_labels::hstore->'en' as integer)":"trm_labels::hstore->'en'"),null,null);
@@ -805,16 +832,16 @@ function getSubTagsStructure($trmID, $ctxPos = "",$preLabel="",$numericSort = fa
           $tagIDToAnoID[$tagInfo['id']] = substr($tagInfo['value'],4);
         }
         //get subTags
-        if (array_key_exists($tagLabel,$parentTermsWithNumericSubterms)) {
-          $items = getSubTagsStructure($tagID,$trmPos,$parentTermsWithNumericSubterms[$tagLabel], true);
+        if (array_key_exists($tagLabel, $parentTermsWithNumericSubterms)) {
+          $items = getSubTagsStructure($tagID, $trmPos, $parentTermsWithNumericSubterms[$tagLabel], true);
         } else {
-          $items = getSubTagsStructure($tagID,$trmPos);
+          $items = getSubTagsStructure($tagID, $trmPos);
         }
       }
       if ($items) {
         $tagInfo['items'] = $items;
       }
-      array_push($subTagsInfo,$tagInfo);
+      array_push($subTagsInfo, $tagInfo);
       $index++;
     }
   }
@@ -834,7 +861,7 @@ $linkTypeTagToList = array();
 */
 
 function getLinkTypeInfo() {
-  global $linkTypeTagToLabel,$linkTypeTagToList;
+  global $linkTypeTagToLabel, $linkTypeTagToList;
   $linkTypeInfo = null;
   $linkTypeTerms = new Terms("trm_labels::hstore->'en' = 'LemmaLinkage'",null,null,null);
   if ($linkTypeTerms && $linkTypeTerms->getCount() > 0 ){
@@ -850,7 +877,7 @@ function getLinkTypeInfo() {
       }
     }
   }
-  $sfLinkTypeTerms = new Terms("trm_labels::hstore->'en' = 'SyntaticFunction'",'trm_id',null,null);
+  $sfLinkTypeTerms = new Terms("trm_labels::hstore->'en' = 'SyntaticFunction'", 'trm_id',null,null);
   if ($sfLinkTypeTerms && $sfLinkTypeTerms->getCount() > 0 ){
     $sfLinkTypeID = $sfLinkTypeTerms->current()->getID();
     $sfLinkTypesStruct = getLinkSubTypeStructure($sfLinkTypeID);
@@ -879,7 +906,7 @@ function getLinkTypeInfo() {
 * @return Terms
 */
 
-function getChildTerms($trmID,$sortByLabel = false) {
+function getChildTerms($trmID, $sortByLabel = false) {
   $childTerms = null;
   $childTerms = new Terms("trm_parent_id = $trmID",($sortByLabel?"trm_labels::hstore->'en'":null),null,null);
   if ($childTerms && $childTerms->getCount() > 0 ){
@@ -911,7 +938,7 @@ $linkTypeTagToList = array();
 */
 
 function getLinkSubTypeStructure($trmID) {
-  global $linkTypeTagToLabel,$linkTypeTagToList;
+  global $linkTypeTagToLabel, $linkTypeTagToList;
   $subLinkTypeInfo = null;
   //get all linkTypeSubTerms ordered alphabetically
   $seqSubTypeTerms = new Terms("trm_parent_id = $trmID","trm_labels::hstore->'en'",null,null);
@@ -934,7 +961,7 @@ function getLinkSubTypeStructure($trmID) {
         $typeInfo['items'] = $items;
         $typeInfo['expanded'] = false;
       }
-      array_push($subLinkTypeInfo,$typeInfo);
+      array_push($subLinkTypeInfo, $typeInfo);
     }
   }
   return $subLinkTypeInfo;
@@ -959,7 +986,7 @@ $seqTypeTagToList = array();
 */
 
 function getSeqTypeInfo() {
-  global $seqTypeTagToLabel,$seqTypeTagToList;
+  global $seqTypeTagToLabel, $seqTypeTagToList;
   $seqTypeInfo = null;
   $seqTypeTerms = new Terms("trm_labels::hstore->'en' = 'SequenceType'",null,null);
   if ($seqTypeTerms && $seqTypeTerms->getCount() > 0 ){
@@ -990,7 +1017,7 @@ function getSeqTypeInfo() {
 */
 
 function getSeqSubTypeStructure($trmID) {
-  global $seqTypeTagToLabel,$seqTypeTagToList;
+  global $seqTypeTagToLabel, $seqTypeTagToList;
   $subSeqTypeInfo = null;
   //get all seqTypeSubTerms ordered alphabetically
   $seqSubTypeTerms = new Terms("trm_parent_id = $trmID","trm_labels::hstore->'en'",null,null);
@@ -1016,7 +1043,7 @@ function getSeqSubTypeStructure($trmID) {
         $typeInfo['items'] = $items;
         $typeInfo['expanded'] = true;
       }
-      array_push($subSeqTypeInfo,$typeInfo);
+      array_push($subSeqTypeInfo, $typeInfo);
     }
   }
   return $subSeqTypeInfo;
@@ -1028,13 +1055,13 @@ function getSeqSubTypeStructure($trmID) {
 * @param int $trmID of custom trm
 * @param string $ctxPos identifying the position of tag in tree ( @deprecated )
 *
-* @global $entTagToLabel,$entTagToPath,$tagIDToAnoID
+* @global $entTagToLabel, $entTagToPath, $tagIDToAnoID
 *
 * @return object array $subTagsInfo of label,id,value structures for each custom tag
 */
 
-function getCustomTags($trmID,$ctxPos = "") {
-  global $entTagToLabel,$entTagToPath,$tagIDToAnoID;
+function getCustomTags($trmID, $ctxPos = "") {
+  global $entTagToLabel, $entTagToPath, $tagIDToAnoID;
   $annoRepresentations = new Annotations("ano_type_id = $trmID and ano_owner_id = ".getUserDefEditorID(),"ano_text",null,null);
   if ($annoRepresentations && $annoRepresentations->getCount() > 0 ){
     $subTagsInfo = array();
@@ -1042,14 +1069,14 @@ function getCustomTags($trmID,$ctxPos = "") {
     foreach($annoRepresentations as $tagAnno) {
       $anoGID = $tagAnno->getGlobalID();
       $trmPos = $ctxPos."$index"; // string of indices that locate this tag in the tagtree
-      $anoTag = str_replace(":","",$anoGID);
+      $anoTag = str_replace(":","", $anoGID);
       $entTagToPath[$anoTag] = $trmPos;
       $tagLabel= $tagAnno->getText();
       $entTagToLabel["ano".$tagAnno->getID()] = $tagLabel;
       $tagInfo = array( "label" => $tagLabel,
         "id" => $anoTag,
         "value" => $anoGID);
-      array_push($subTagsInfo,$tagInfo);
+      array_push($subTagsInfo, $tagInfo);
       $tagIDToAnoID[$tagInfo['id']] = substr($tagInfo['value'],4);
     }
     return $subTagsInfo;
@@ -1086,15 +1113,15 @@ function getTagGIDValue($trmID) {
 * @return int array $ctx of Compound ids representing the from-to containment
 */
 
-function getCmpContext($pGID,$cGID) {
+function getCmpContext($pGID, $cGID) {
   if ($pGID == $cGID) {
     return true;//positive terminate recursion for found compound or token to return containment context
   }
-  list($pPrefix,$pID) = explode(":",$pGID);
+  list($pPrefix, $pID) = explode(":", $pGID);
   if ($pPrefix == "cmp") {
     $compound = new Compound($pID);
     foreach($compound->getComponentIDs() as $gid) {
-      if ($ctx = getCmpContext($gid,$cGID)) {
+      if ($ctx = getCmpContext($gid, $cGID)) {
         if (is_array($ctx)) {
           array_push($ctx, $pID);
           return $ctx;
@@ -1116,7 +1143,7 @@ function getCmpContext($pGID,$cGID) {
 * @return int array $sclIDs of SyllableCluster entity ids for a given entity
 */
 
-function getEntitySclIDs($prefix,$id) {
+function getEntitySclIDs($prefix, $id) {
   $sclIDs = null;
   if ($prefix == 'scl') {
     $sclIDs = array($id);
@@ -1128,7 +1155,7 @@ function getEntitySclIDs($prefix,$id) {
     $cmpTokens = $compound->getTokens();
     $sclIDs = array();
     foreach ($cmpTokens as $token) {
-      $sclIDs = array_merge($sclIDs,$token->getSyllableClusterIDs());
+      $sclIDs = array_merge($sclIDs, $token->getSyllableClusterIDs());
     }
   }
   return $sclIDs;
@@ -1143,7 +1170,7 @@ function getEntitySclIDs($prefix,$id) {
 * @return string $hash made from $prefix + start segID + end segID
 */
 
-function getEntitySwitchHash($prefix,$id) {
+function getEntitySwitchHash($prefix, $id) {
   $tag = $prefix.$id;
   if ($prefix == 'scl') {
     $syllable = new SyllableCluster($id);
@@ -1210,43 +1237,43 @@ function getSwitchInfoByTextFromEntities(&$entities,&$gra2SclMap,&$errors,&$warn
   $retVal = array();
   $switchInfoByTextID = array();
 
-  if (!array_key_exists('txt',$entities) || count($entities['txt'])>0) {
+  if (!array_key_exists('txt', $entities) || count($entities['txt'])>0) {
     //iterate the texts
     foreach ($entities['txt'] as $txtID => $txtObj) {
-      $switchInfoByTextID[$txtID] = array('entSetBySegHash'=>array(),'hashByEntTag'=> array());
+      $switchInfoByTextID[$txtID] = array('entSetBySegHash'=>array(), 'hashByEntTag'=> array());
       $switchInfo = &$switchInfoByTextID[$txtID];
       //text must have edition info to calculate
-      if (!array_key_exists('ednIDs',$txtObj) || count($txtObj['ednIDs'])<1) {
+      if (!array_key_exists('ednIDs', $txtObj) || count($txtObj['ednIDs'])<1) {
         //zero or 1 edition so no relavent switch info skip
         array_push($warnings,"warning no multiple editions found for text txt$txtID skipping switch calculation");
         continue;
       }
       //iterate each edition
       foreach ($txtObj['ednIDs'] as $ednID) {
-        if (!array_key_exists($ednID,$entities['edn'])) {
+        if (!array_key_exists($ednID, $entities['edn'])) {
           //error so mark and move on
           array_push($warnings,"warning edition edn$ednID not found for text txt$txtID skipping switch calculation");
           continue;
         }
         $ednObj = $entities['edn'][$ednID];
-        if (!array_key_exists('seqIDs',$ednObj)) {//no top sequence containers
+        if (!array_key_exists('seqIDs', $ednObj)) {//no top sequence containers
           array_push($warnings,"warning sequence containers for edition edn$ednID not found for text txt$txtID skipping switch calculation");
           continue;
         }
         //iterate each sequence container and create entHash Lookup and hash set
         foreach ($ednObj['seqIDs'] as $seqID) {
-          if (!array_key_exists($seqID,$entities['seq'])) {
+          if (!array_key_exists($seqID, $entities['seq'])) {
             //error so mark and move on
             array_push($warnings,"warning sequence seq$seqID not found for edition edn$ednID of text txt$txtID skipping switch calculation");
             continue;
           }
           $seqObj = $entities['seq'][$seqID];
-          if (!array_key_exists('entityIDs',$seqObj)) {//no contained entities
+          if (!array_key_exists('entityIDs', $seqObj)) {//no contained entities
             array_push($warnings,"warning sequence seq$seqID is empty (edition edn$ednID of text txt$txtID) skipping switch calculation");
             continue;
           }
           foreach ($seqObj['entityIDs'] as $entGID) {
-            addSwitchInfo($entGID,$entities,$gra2SclMap,$switchInfo,$errors,$warnings);
+            addSwitchInfo($entGID, $entities, $gra2SclMap, $switchInfo, $errors, $warnings);
           }
         }//end foreach top level sequence
       }//end foreach edition
@@ -1266,26 +1293,27 @@ function getSwitchInfoByTextFromEntities(&$entities,&$gra2SclMap,&$errors,&$warn
 * @returns int position of split or zero if not split
 */
 
-function checkForSplit($token, $syllable, $end) {
+function checkForSplit($token, $syllable, $end) 
+{
   $strTok = $token.value;
   $strScl = $syllable.value;
   $cntScl = strlen($strScl);
   $split = 0;
   if (!end) { //check start of token
-    $strTokCompare = substr($strTok,0,$cntScl);
+    $strTokCompare = substr($strTok, 0, $cntScl);
     $split = 0;
     while ( $strScl != $strTokCompare) {
       $split++;
-      $strScl = substr($strScl,1);//remove lead char
-      $strTokCompare = substr($strTokCompar,0, (strlen($strTokCompare) - 1));
+      $strScl = substr($strScl, 1);//remove lead char
+      $strTokCompare = substr($strTokCompar, 0, (strlen($strTokCompare) - 1));
     }
   } else {
     $strTokCompare = $strTok.substring($strTok.length - $cntScl);
     $split = $cntScl;
     while ( $strScl != $strTokCompare) {
       $split--;
-      $strTokCompare = substr($strTokCompare,1);//remove lead char
-      $strScl = substr($strScl,0, (strlen($strScl) - 1));
+      $strTokCompare = substr($strTokCompare, 1);//remove lead char
+      $strScl = substr($strScl, 0, (strlen($strScl) - 1));
     }
   }
   return $split;
@@ -1301,97 +1329,101 @@ function checkForSplit($token, $syllable, $end) {
 * @param object reference $errors to log any errors encountered during calculation
 * @param object reference $warnings to log any warnings encountered during calculation
 *
-* @return array $startID,$endID Segment ids marking the range of the given entity
+* @return array $startID, $endID Segment ids marking the range of the given entity
 */
 
-function addSwitchInfo($entGID,&$entities,&$gra2SclMap,&$switchInfo,&$errors,&$warnings) {
-  $prefix = substr($entGID,0,3);
+function addSwitchInfo($entGID, &$entities, &$gra2SclMap, &$switchInfo, &$errors, &$warnings) 
+{
+  $prefix = substr($entGID, 0, 3);
   $startID = $endID = null;
-  $id = substr($entGID,4);
-  if (array_key_exists($prefix,$entities) && array_key_exists($id, $entities[$prefix])) {
+  $id = substr($entGID, 4);
+  if (array_key_exists($prefix, $entities) && array_key_exists($id, $entities[$prefix])) {
     $entObj = $entities[$prefix][$id];
     switch ($prefix) {
       case "xxxscl"://xxx deprecate switch for syllables
-        if (array_key_exists('segID',$entObj)) {
-          $startID = $endID = $entObj['segID'];
-        }
-        break;
+          if (array_key_exists('segID', $entObj)) {
+            $startID = $endID = $entObj['segID'];
+          }
+          break;
       case "tok":
-        $graIDs = $entObj['graphemeIDs'];
-        $startSclID = @$gra2SclMap[$graIDs[0]];
-        $endSclID = @$gra2SclMap[$graIDs[count($graIDs)-1]];
-        if ($startSclID && $endSclID) {
-          if ($entities['scl'][$startSclID]) {
-            if (array_key_exists('segID',$entities['scl'][$startSclID]) && $entities['scl'][$startSclID]['segID']) {
-              $startID = $entities['scl'][$startSclID]['segID'];
-              $split = checkForSplit($entObj,$startSclID,false);
-              if ($split){
-                $startID = "scl".$startSclID."S".$split;
+          $graIDs = $entObj['graphemeIDs'];
+          $startSclID = @$gra2SclMap[$graIDs[0]];
+          $endSclID = @$gra2SclMap[$graIDs[count($graIDs)-1]];
+          if ($startSclID && $endSclID) {
+            if ($entities['scl'][$startSclID]) {
+              if (array_key_exists('segID', $entities['scl'][$startSclID]) && $entities['scl'][$startSclID]['segID']) {
+                $startID = $entities['scl'][$startSclID]['segID'];
+                $split = checkForSplit($entObj, $startSclID, false);
+                if ($split) {
+                  $startID = "scl".$startSclID."S".$split;
+                }
+              } else {
+                array_push($warnings, "warning no segID for syllable ID $startSclID of $entGID skipping switch calculation");
               }
             } else {
-              array_push($warnings,"warning no segID for syllable ID $startSclID of $entGID skipping switch calculation");
+              array_push($warnings, "warning syllable $startSclID  of $entGID not found - skipping switch calculation");
             }
-          } else {
-            array_push($warnings,"warning syllable $startSclID  of $entGID not found - skipping switch calculation");
-          }
-          if ($entities['scl'][$endSclID]) {
-            if (array_key_exists('segID',$entities['scl'][$endSclID]) && $entities['scl'][$endSclID]['segID']) {
-              $endID = $entities['scl'][$endSclID]['segID'];
-              $split = checkForSplit($entObj,$endSclID,false);
-              if ($split){
-                $endID = "scl".$endSclID."S".$split;
+            if ($entities['scl'][$endSclID]) {
+              if (array_key_exists('segID', $entities['scl'][$endSclID]) && $entities['scl'][$endSclID]['segID']) {
+                $endID = $entities['scl'][$endSclID]['segID'];
+                $split = checkForSplit($entObj, $endSclID, false);
+                if ($split) {
+                  $endID = "scl".$endSclID."S".$split;
+                }
+              } else {
+                array_push($warnings, "warning no segID for syllable ID $endSclID of $entGID skipping switch calculation");
               }
             } else {
-              array_push($warnings,"warning no segID for syllable ID $endSclID of $entGID skipping switch calculation");
+              array_push($warnings, "warning syllable $endSclID  of $entGID not found - skipping switch calculation");
             }
           } else {
-            array_push($warnings,"warning syllable $endSclID  of $entGID not found - skipping switch calculation");
+            if (!array_key_exists($graIDs[0], $gra2SclMap)) {
+              array_push($warnings, "warning no syllable map info for grapheme ".$graIDs[0]." of $entGID skipping switch calculation");
+            }
+            if (!array_key_exists($graIDs[count($graIDs)-1], $gra2SclMap)) {
+              array_push($warnings, "warning no syllable map info for grapheme ".$graIDs[count($graIDs)-1]." of $entGID skipping switch calculation");
+            }
           }
-        } else {
-          if (!array_key_exists($graIDs[0],$gra2SclMap)) {
-            array_push($warnings,"warning no syllable map info for grapheme ".$graIDs[0]." of $entGID skipping switch calculation");
-          }
-          if (!array_key_exists($graIDs[count($graIDs)-1],$gra2SclMap)) {
-            array_push($warnings,"warning no syllable map info for grapheme ".$graIDs[count($graIDs)-1]." of $entGID skipping switch calculation");
-          }
-        }
-        break;
+          break;
       case "cmp":
       case "seq":
-        if (!array_key_exists('entityIDs',$entObj) || count($entObj['entityIDs'])<1) {
-          array_push($warnings,"warning entity $entGID is empty skipping switch calculation");
-        } else {
-          $entIDs = $entObj['entityIDs'];
-          $i=0;
-          $subStartID = $subEndID = null;
-          foreach ($entIDs as $entGID) {
-            list($subStartID,$subEndID) = addSwitchInfo($entGID,$entities,$gra2SclMap,$switchInfo,$errors,$warnings);
-            if ($i == 0) {
-              $startID = $subStartID;
-              $i=1;
+          if (!array_key_exists('entityIDs', $entObj) || count($entObj['entityIDs'])<1) {
+            array_push($warnings, "warning entity $entGID is empty skipping switch calculation");
+          } else {
+            $entIDs = $entObj['entityIDs'];
+            $i=0;
+            $subStartID = $subEndID = null;
+            foreach ($entIDs as $entGID) {
+                list($subStartID, $subEndID) = addSwitchInfo(
+                                                  $entGID, $entities, $gra2SclMap, 
+                                                  $switchInfo, $errors, $warnings
+                                                );
+                if ($i == 0) {
+                  $startID = $subStartID;
+                  $i=1;
+                }
             }
+            $endID = $subEndID;
           }
-          $endID = $subEndID;
-        }
-        break;
+          break;
     }
     $tag = $prefix.$id;
     if ($startID && $endID) {
       // add entity tag to switch lookup using hash
       $hash = $prefix."seg$startID"."seg$endID";
       $switchInfo['hashByEntTag'][$tag] = $hash;
-      if (!array_key_exists($hash,$switchInfo['entSetBySegHash'])) {
+      if (!array_key_exists($hash, $switchInfo['entSetBySegHash'])) {
         $switchInfo['entSetBySegHash'][$hash] = array($tag);
-      } else if (!in_array($tag,$switchInfo['entSetBySegHash'][$hash])){
-        array_push($switchInfo['entSetBySegHash'][$hash],$tag);
+      } else if (!in_array($tag, $switchInfo['entSetBySegHash'][$hash])) {
+        array_push($switchInfo['entSetBySegHash'][$hash], $tag);
       }
     } else if (!$startID) {
-      array_push($warnings,"warning start segID for entity $tag was not found not adding switch info");
+      array_push($warnings, "warning start segID for entity $tag was not found not adding switch info");
     } else if (!$endID) {
-      array_push($warnings,"warning end segID for entity $tag was not found not adding switch info");
+      array_push($warnings, "warning end segID for entity $tag was not found not adding switch info");
     }
   }
-  return array($startID,$endID);
+  return array($startID, $endID);
 }
 
 /**
@@ -1491,7 +1523,7 @@ function invalidateCachedEditionViewerHtml($ednID = null) { // setDirty flag
 * @param int $ednID Edition id
 */
 
-function invalidateCachedViewerLemmaHtmlLookup($catID = null,$ednID = null) { // setDirty flag
+function invalidateCachedViewerLemmaHtmlLookup($catID = null, $ednID = null) { // setDirty flag
   $cacheKey = "glosscat".($catID?$catID:'%')."edn".($ednID?$ednID:'%');
   invalidateCache($cacheKey);
 }
@@ -1503,7 +1535,7 @@ function invalidateCachedViewerLemmaHtmlLookup($catID = null,$ednID = null) { //
 * @param int $usrID UserGroup id
 */
 
-function invalidateCachedSeqEntities($seqID = null,$ednID = null) { // setDirty flag
+function invalidateCachedSeqEntities($seqID = null, $ednID = null) { // setDirty flag
   $cacheKey = "seq".($seqID?$seqID:'%')."edn".($ednID?$ednID:'%');
   invalidateCache($cacheKey);
 }
@@ -1516,15 +1548,15 @@ function invalidateCachedSeqEntities($seqID = null,$ednID = null) { // setDirty 
 * @param mixed $ednSeqIDs
 * @param mixed $ednID
 */
-function invalidateParentCache($seqGID,$ednSeqIDs,$ednID) {
-  if ($ednSeqIDs && count($ednSeqIDs) > 0 && in_array(substr($seqGID,4),$ednSeqIDs)) {
+function invalidateParentCache($seqGID, $ednSeqIDs, $ednID) {
+  if ($ednSeqIDs && count($ednSeqIDs) > 0 && in_array(substr($seqGID,4), $ednSeqIDs)) {
     return;//top level sequence nothing to do
   }
   $containers = new Sequences("'$seqGID' = ANY(seq_entity_ids)",null,null,null);
   if ($containers && count($containers) > 0){
     foreach($containers as $seqContainer){
-      invalidateParentCache($seqContainer->getGlobalID(),$ednSeqIDs,$ednID);
-      invalidateSequenceCache($seqContainer,$ednID);
+      invalidateParentCache($seqContainer->getGlobalID(), $ednSeqIDs, $ednID);
+      invalidateSequenceCache($seqContainer, $ednID);
     }
   }
 }
@@ -1536,7 +1568,7 @@ function invalidateParentCache($seqGID,$ednSeqIDs,$ednID) {
 * @param int $usrID UserGroup id
 */
 
-function invalidateSequenceCache($sequence,$ednID) { // setDirty flag
+function invalidateSequenceCache($sequence, $ednID) { // setDirty flag
   $seqID = $sequence->getID();
   if ($sequence->getScratchProperty("edn".$ednID."physLineHtml")) { //clear cached viewer html
     $sequence->storeScratchProperty("edn".$ednID."physLineHtml",null);
@@ -1587,8 +1619,8 @@ function getSwitchInfo($txtIDs) {
 
   if (!is_array($txtIDs)) {
     if (is_string($txtIDs)) {//convert to array
-      if(strpos($txtIDs,",")) {
-        $txtIDs = explode(",",$txtIDs);
+      if (strpos($txtIDs,",")) {
+        $txtIDs = explode(",", $txtIDs);
       } else {
         $txtIDs = array($txtIDs);
       }
@@ -1608,28 +1640,28 @@ function getSwitchInfo($txtIDs) {
       //get unique sequences for all editions
       $seqIDs = array();
       foreach ($editions as $edition) {
-        $seqIDs = array_merge($seqIDs,$edition->getSequenceIDs());
+        $seqIDs = array_merge($seqIDs, $edition->getSequenceIDs());
       }
       $seqIDs = array_unique($seqIDs);
       //reduce sequences to switchable entities (compounds, tokens and syllableclusters)
       $entSeqIDs = array();
-      $sequences = new Sequences("seq_id in (".join(',',$seqIDs).")",null,null,null);
+      $sequences = new Sequences("seq_id in (".join(',', $seqIDs).")",null,null,null);
       foreach ($sequences as $sequence) {
         $seqType = strtolower($sequence->getType('en'));
         if ($seqType == "textphysical" || $seqType == "text") {
-          $entSeqIDs = array_merge($entSeqIDs,$sequence->getEntityIDs());
+          $entSeqIDs = array_merge($entSeqIDs, $sequence->getEntityIDs());
         }
       }
       $entSeqIDs = array_unique($entSeqIDs);
-      $entSeqIDsList = join(',',$entSeqIDs);
-      $entSeqIDsList = preg_replace("/seq\:/",'',$entSeqIDsList);
+      $entSeqIDsList = join(',', $entSeqIDs);
+      $entSeqIDsList = preg_replace("/seq\:/", '', $entSeqIDsList);
       $sequences = new Sequences("seq_id in (".$entSeqIDsList.")",null,null,null);
       $entGIDs = array();
       foreach ($sequences as $sequence) {
-        $entGIDs = array_merge($entGIDs,$sequence->getEntityIDs());
+        $entGIDs = array_merge($entGIDs, $sequence->getEntityIDs());
       }
       $entGIDs = array_unique($entGIDs);
-      preg_match_all("/cmp:\d+/",join(" ",$entGIDs),$cmpIDs);//find all the compounds gids
+      preg_match_all("/cmp:\d+/",join(" ", $entGIDs), $cmpIDs);//find all the compounds gids
       $cmpIDs = $cmpIDs[0];
       while (count($cmpIDs)) {
         $cmpID = array_shift($cmpIDs);
@@ -1638,10 +1670,10 @@ function getSwitchInfo($txtIDs) {
           $compGIDS = $compound->getComponentIDs();
           if (count($compGIDS)) {
             foreach ($compGIDS as $compGID) {
-              if (!in_array($compGID,$entGIDs)) { // new GID so add to list
-                array_push($entGIDs,$compGID);
+              if (!in_array($compGID, $entGIDs)) { // new GID so add to list
+                array_push($entGIDs, $compGID);
                 if (substr($compGID,0,3) == "cmp") {// compound so add to processing list
-                  array_push($cmpIDs,$compGID);
+                  array_push($cmpIDs, $compGID);
                 }
               }
             }
@@ -1652,18 +1684,18 @@ function getSwitchInfo($txtIDs) {
       $entities = new OrderedSet();
       $entities->loadEntities($entGIDs);
       //foreach entity
-      $switchInfo = array('entSetBySegHash'=>array(),'hashByEntTag'=> array());
+      $switchInfo = array('entSetBySegHash'=>array(), 'hashByEntTag'=> array());
       foreach ($entities as $entity){
         // calc hash from start and stop segment
         $gid = $entity->getGlobalID();
-        $tag = preg_replace("/\:/","",$gid);
+        $tag = preg_replace("/\:/","", $gid);
         $prefix = substr($gid,0,3);
         if ($prefix == 'scl') {
           $startID = $endID = $entity->getSegmentID();
         } else if ($prefix == 'tok') {
           $sclIDs = $entity->getSyllableClusterIDs();
           if (!count($sclIDs)) {
-            array_push($warnings,"warning found token entity GID ".$entity->getGlobalID()." with no sclIDs and entGIDs - ".join(',',$entGIDs));
+            array_push($warnings,"warning found token entity GID ".$entity->getGlobalID()." with no sclIDs and entGIDs - ".join(',', $entGIDs));
             continue;
           }
           $syllable = new SyllableCluster($sclIDs[0]);
@@ -1688,10 +1720,10 @@ function getSwitchInfo($txtIDs) {
         // add entity tag to switch lookup using hash
         $hash = $prefix."seg$startID"."seg$endID";
         $switchInfo['hashByEntTag'][$tag] = $hash;
-        if (!array_key_exists($hash,$switchInfo['entSetBySegHash'])) {
+        if (!array_key_exists($hash, $switchInfo['entSetBySegHash'])) {
           $switchInfo['entSetBySegHash'][$hash] = array($tag);
         } else {
-          array_push($switchInfo['entSetBySegHash'][$hash],$tag);
+          array_push($switchInfo['entSetBySegHash'][$hash], $tag);
         }
       }
     } else {
@@ -1900,14 +1932,14 @@ function getUserDefaultAttributionID(){
 
 function getUserUGrpList(){
   //get user's usergroups (member or admin)
-  $uGroups = new UserGroups("",'ugr_name',null,null);
+  $uGroups = new UserGroups("", 'ugr_name',null,null);
   if ($uGroups && !$uGroups->getError()) {
     $uGrpUIList = array();
     foreach($uGroups as $userGroup) {
       $ugrpName = $userGroup->getName();
       $ugrpDesc = $userGroup->getDescription();
       if ($ugrpName) {
-        array_push($uGrpUIList, array('name'=>$ugrpName,'description'=>$ugrpDesc, 'id'=>$userGroup->getID()));
+        array_push($uGrpUIList, array('name'=>$ugrpName, 'description'=>$ugrpDesc, 'id'=>$userGroup->getID()));
       }
     }
   }
@@ -1923,7 +1955,7 @@ function getUserUGrpList(){
 * @return Entity link Annotation matching the parameters || null
 */
 
-function getRelationshipLink($fromEntGID,$toEntGID,$linkTypeID) {
+function getRelationshipLink($fromEntGID, $toEntGID, $linkTypeID) {
   //find all annotations with same from to
   $existingLinks = new Annotations("'$fromEntGID' = ANY(ano_linkfrom_ids) and '$toEntGID' = ANY(ano_linkto_ids) and ano_type_id = $linkTypeID");
   if ($existingLinks->getCount() > 0) {
@@ -1942,7 +1974,7 @@ function getRelationshipLink($fromEntGID,$toEntGID,$linkTypeID) {
 * @return link Annotation
 */
 
-function createRelationshipLink($fromEntGID,$toEntGID,$linkTypeID,$muxLinkTypeIDs = null) {
+function createRelationshipLink($fromEntGID, $toEntGID, $linkTypeID, $muxLinkTypeIDs = null) {
   //todo validate $linkType
   if (!$muxLinkTypeIDs) {
     $muxLinkTypeIDs = array($linkTypeID);
@@ -1951,7 +1983,7 @@ function createRelationshipLink($fromEntGID,$toEntGID,$linkTypeID,$muxLinkTypeID
   $existingLinks = new Annotations("'$fromEntGID' = ANY(ano_linkfrom_ids) and '$toEntGID' = ANY(ano_linkto_ids) and not ano_owner_id = 1");
   if ($existingLinks->getCount() > 0) {//check existing links for type or if MUX set check forlink in set of types
     foreach($existingLinks as $link) {
-      if (in_array($link->getTypeID(),$muxLinkTypeIDs)) {//found existing link
+      if (in_array($link->getTypeID(), $muxLinkTypeIDs)) {//found existing link
         $link->setTypeID($linkTypeID); //in memory alter the type for use in calling routine
         return $link;
       }
@@ -2029,7 +2061,7 @@ function checkEditionHealth($ednID, $verbose = true) {
     $ednID = $edition->getID();
     $seqIDs = $edition->getSequenceIDs();
     if ($seqIDs && count($seqIDs) > 0) {
-      $condition = "seq_id in (".join(",",$seqIDs).")";
+      $condition = "seq_id in (".join(",", $seqIDs).")";
       $sequences = new Sequences($condition,null,null,null);
       $sequences->setAutoAdvance(false); // make sure the iterator doesn't prefetch
       if ($sequences && $sequences->getCount()>0) {
@@ -2044,27 +2076,27 @@ function checkEditionHealth($ednID, $verbose = true) {
           $seqLabel = $sequence->getLabel()?$sequence->getLabel():$sequence->getSuperScript();
           $seqGID2Label["seq:$seqID"] = $seqLabel;
           if ($sequence->isMarkedDelete()) {
-            array_push($hltherrors,"Error edition (edn:$ednID) has sequence ($seqLabel/seq:$seqID) that is marked for delete.");
+            array_push($hltherrors, "Error edition (edn:$ednID) has sequence ($seqLabel/seq:$seqID) that is marked for delete.");
             //ToDo  add code to add <a> for a service to correct the issue.
           }
           if ($seqTypeID == $textSeqTypeID){
             // get all the child IDs
             $txtSeqGID = $sequence->getGlobalID();
             $txtDivSeqGIDs = $sequence->getEntityIDs();
-            $txtDivSeqIDs = preg_replace("/seq\:/","",$txtDivSeqGIDs);
-            if (strpos(join(' ',$txtDivSeqIDs),":") !== false) {
-              array_push($hltherrors,"Error Text Sequence ($seqLabel/seq:$seqID) not all entity GIDs are sequence type. (".join(',',$txtDivSeqGIDs).").");
+            $txtDivSeqIDs = preg_replace("/seq\:/","", $txtDivSeqGIDs);
+            if (strpos(join(' ', $txtDivSeqIDs),":") !== false) {
+              array_push($hltherrors, "Error Text Sequence ($seqLabel/seq:$seqID) not all entity GIDs are sequence type. (".join(',', $txtDivSeqGIDs).").");
             }
           } else if ($seqTypeID == $textPhysSeqTypeID){
             // get all the child IDs
             $physSeqGID = $sequence->getGlobalID();
             $linePhysSeqGIDs = $sequence->getEntityIDs();
-            $linePhysSeqIDs = preg_replace("/seq\:/","",$linePhysSeqGIDs);
-            if (strpos(join(' ',$linePhysSeqIDs),":") !== false) {
-              array_push($hltherrors,"Error Physical Sequence ($seqLabel/seq:$seqID) not all entity GIDs are sequence type. (".join(',',$linePhysSeqGIDs).").");
+            $linePhysSeqIDs = preg_replace("/seq\:/","", $linePhysSeqGIDs);
+            if (strpos(join(' ', $linePhysSeqIDs),":") !== false) {
+              array_push($hltherrors, "Error Physical Sequence ($seqLabel/seq:$seqID) not all entity GIDs are sequence type. (".join(',', $linePhysSeqGIDs).").");
             }
           } else {//other structural definitions
-            array_push($structuralSeqIDs,$seqID);
+            array_push($structuralSeqIDs, $seqID);
           }
         }
         //process line sequences
@@ -2072,7 +2104,7 @@ function checkEditionHealth($ednID, $verbose = true) {
           array_push($hltherrors,"**************** Processing Line Physical Sequences ***************************");
         }
         if ($linePhysSeqIDs && count($linePhysSeqIDs) > 0) {
-          $condition = "seq_id in (".join(",",$linePhysSeqIDs).")";
+          $condition = "seq_id in (".join(",", $linePhysSeqIDs).")";
           $sequences = new Sequences($condition,null,null,null);
           $sequences->setAutoAdvance(false); // make sure the iterator doesn't prefetch
           if ($sequences && $sequences->getCount()>0) {
@@ -2081,20 +2113,20 @@ function checkEditionHealth($ednID, $verbose = true) {
               $seqLabel = $sequence->getLabel()?$sequence->getLabel():$sequence->getSuperScript();
               $seqGID2Label["seq:$seqID"] = $seqLabel;
               if ($sequence->isMarkedDelete()) {
-                array_push($hltherrors,"Error Physical Sequence ($physSeqGID) has Line Sequence link ($seqLabel/seq:$seqID) that is marked for delete.");
+                array_push($hltherrors, "Error Physical Sequence ($physSeqGID) has Line Sequence link ($seqLabel/seq:$seqID) that is marked for delete.");
                 //ToDo  add code to add <a> for a service to correct the issue.
               }
               //check for line physical and not free text
               if ($sequence->getTermFromID($sequence->getTypeID()) == "LinePhysical") {
                 $lineSclGIDs = $sequence->getEntityIDs();
-                $lineSclIDs = preg_replace("/scl\:/","",$lineSclGIDs);
-                if (strpos(join(' ',$lineSclIDs),":") !== false) {
-                  array_push($hltherrors,"Error Physical Line Sequence ($seqLabel/seq:$seqID) not all entity GIDs are syllablecluster type. (".join(',',$lineSclGIDs).").");
+                $lineSclIDs = preg_replace("/scl\:/","", $lineSclGIDs);
+                if (strpos(join(' ', $lineSclIDs),":") !== false) {
+                  array_push($hltherrors, "Error Physical Line Sequence ($seqLabel/seq:$seqID) not all entity GIDs are syllablecluster type. (".join(',', $lineSclGIDs).").");
                 } else {
-                  if (count($dups = array_intersect($sclIDs,$lineSclIDs))) {
-                      array_push($hltherrors,"Error Physical Line Sequence ($seqLabel/seq:$seqID) has duplicate syllablecluster id (".join(',',$dups).").");
+                  if (count($dups = array_intersect($sclIDs, $lineSclIDs))) {
+                      array_push($hltherrors, "Error Physical Line Sequence ($seqLabel/seq:$seqID) has duplicate syllablecluster id (".join(',', $dups).").");
                   }
-                  $sclIDs = array_unique(array_merge($sclIDs,$lineSclIDs));
+                  $sclIDs = array_unique(array_merge($sclIDs, $lineSclIDs));
                   foreach ($lineSclGIDs as $lineSclGID) {
                     $gid2SeqMap[$lineSclGID] = "seq:$seqID";
                   }
@@ -2108,7 +2140,7 @@ function checkEditionHealth($ednID, $verbose = true) {
         }
         //process syllables
         if ($sclIDs && count($sclIDs) > 0) {
-          $condition = "scl_id in (".join(",",$sclIDs).")";
+          $condition = "scl_id in (".join(",", $sclIDs).")";
           $syllables = new SyllableClusters($condition,null,null,null);
           $syllables->setAutoAdvance(false); // make sure the iterator doesn't prefetch
           if ($syllables && $syllables->getCount()>0) {
@@ -2128,26 +2160,26 @@ function checkEditionHealth($ednID, $verbose = true) {
               }
               $aksaraPos = "syl#$sclLinePos";
               $ctxMessage = "Physical Line Sequence ($seqLabel/$lineSeqGID) with syllable link ($aksaraPos/scl:$sclID)";
-              if (($index = array_search($sclID,$sclIDs)) !== false) {
-                array_splice($sclIDs,$index,1);
+              if (($index = array_search($sclID, $sclIDs)) !== false) {
+                array_splice($sclIDs, $index,1);
               }
               if ($syllable->isMarkedDelete()) {
-                array_push($hltherrors,"Error $ctxMessage that is marked for delete.");
+                array_push($hltherrors, "Error $ctxMessage that is marked for delete.");
                 //ToDo:  add code to add <a> for a service to correct the issue.
               } else {
                 $sclGraIDs = $syllable->getGraphemeIDs();
-                if (count($dups = array_intersect($sclGraphemeIDs,$sclGraIDs))) {
-                  array_push($hltherrors,"Error $ctxMessage with duplicate graIDs (".join(',',$dups).").");
+                if (count($dups = array_intersect($sclGraphemeIDs, $sclGraIDs))) {
+                  array_push($hltherrors, "Error $ctxMessage with duplicate graIDs (".join(',', $dups).").");
                 }
-                $sclGraphemeIDs = array_unique(array_merge($sclGraphemeIDs,$sclGraIDs));
+                $sclGraphemeIDs = array_unique(array_merge($sclGraphemeIDs, $sclGraIDs));
                 foreach ($sclGraIDs as $sclGraID) {
                   $gra2SclGID[$sclGraID] = "scl:$sclID";
                   $grapheme = new Grapheme($sclGraID);
                   if (!$grapheme || $grapheme->hasError()) {
-                    array_push($hltherrors,"Error Unable to create graphene (".$grapheme->getGrapheme()."/gra:$sclGraID) located in $ctxMessage.".
+                    array_push($hltherrors, "Error Unable to create graphene (".$grapheme->getGrapheme()."/gra:$sclGraID) located in $ctxMessage.".
                                 ($grapheme->hasError()?"Errors: ".$grapheme->getErrors(true):""));
                   } else if ($grapheme->isMarkedDelete()) {
-                      array_push($hltherrors,"Error $ctxMessage has grapheme (".$grapheme->getGrapheme()."/gra:$sclGraID) that is marked for delete.");
+                      array_push($hltherrors, "Error $ctxMessage has grapheme (".$grapheme->getGrapheme()."/gra:$sclGraID) that is marked for delete.");
                       //ToDo:  add code to add <a> for a service to correct the issue.
                   }
                 }
@@ -2156,17 +2188,17 @@ function checkEditionHealth($ednID, $verbose = true) {
                 if ($segment) {
                   $segGID = $segment->getGlobalID();
                   if ($segment->isMarkedDelete()) {
-                    array_push($hltherrors,"Error Syllable ($aksaraPos/scl:$sclID) of Physical Line Sequence ($seqLabel/$lineSeqGID) is linked to segement ($segGID) that is marked for delete.");
+                    array_push($hltherrors, "Error Syllable ($aksaraPos/scl:$sclID) of Physical Line Sequence ($seqLabel/$lineSeqGID) is linked to segement ($segGID) that is marked for delete.");
                     //ToDo:  add code to add <a> for a service to correct the issue.
                   } else {
                     $segBlnIDs = $segment->getBaselineIDs();
                     if (!count($segBlnIDs)) {
-                      array_push($hltherrors,"Error Syllable ($aksaraPos/scl:$sclID) of Physical Line Sequence ($seqLabel/$lineSeqGID) is linked to Segment ($segGID) which is missing baseline link.");
+                      array_push($hltherrors, "Error Syllable ($aksaraPos/scl:$sclID) of Physical Line Sequence ($seqLabel/$lineSeqGID) is linked to Segment ($segGID) which is missing baseline link.");
                     } else {
-                      $blnIDs = array_unique(array_merge($blnIDs,$segBlnIDs));
+                      $blnIDs = array_unique(array_merge($blnIDs, $segBlnIDs));
                       foreach ($segBlnIDs as $blnID) {
-                        if ( array_key_exists($blnID,$blnID2SclIDsMap)) {
-                          array_push($blnID2SclIDsMap[$blnID],$sclID);
+                        if ( array_key_exists($blnID, $blnID2SclIDsMap)) {
+                          array_push($blnID2SclIDsMap[$blnID], $sclID);
                         } else {
                           $blnID2SclIDsMap[$blnID] = array($sclID);
                         }
@@ -2179,17 +2211,17 @@ function checkEditionHealth($ednID, $verbose = true) {
               }
             }
             if (count($sclIDs)) {
-              array_push($hltherrors,"Error Unread syllablecluster ids (".join(',',$sclIDs).").");
+              array_push($hltherrors, "Error Unread syllablecluster ids (".join(',', $sclIDs).").");
             }
             if ($blnIDs && count($blnIDs) > 0) {
-              $condition = "bln_id in (".join(",",$blnIDs).")";
+              $condition = "bln_id in (".join(",", $blnIDs).")";
               $baselines = new Baselines($condition,null,null,null);
               $baselines->setAutoAdvance(false); // make sure the iterator doesn't prefetch
               if ($baselines && $baselines->getCount()>0) {
                 foreach ($baselines as $baseline) {
                   $blnGID = $baseline->getGlobalID();
                   if ($baseline->isMarkedDelete()) {
-                    array_push($hltherrors,"Error Baseline ($blnGID) that is marked for delete is linked to syllables (".join(",",$blnID2SclIDsMap[$baseline->getID()]).").");
+                    array_push($hltherrors, "Error Baseline ($blnGID) that is marked for delete is linked to syllables (".join(",", $blnID2SclIDsMap[$baseline->getID()]).").");
                     //ToDo  add code to add <a> for a service to correct the issue.
                   } else {
                     if ($baseline->getType()==$imageBaselineTypeID) {//image baseline so check image
@@ -2206,10 +2238,10 @@ function checkEditionHealth($ednID, $verbose = true) {
                         array_push($hlthwarnings,"Warning Baseline ($blnGID) is not linked to any surfaces.");
                       }
                       } else {
-                      array_push($srfIDs,$blnSrfID);
+                      array_push($srfIDs, $blnSrfID);
                       $srfIDs = array_unique($srfIDs);
-                      if ( array_key_exists($blnSrfID,$srfID2BlnIDsMap)) {
-                        array_push($srfID2BlnIDsMap[$blnSrfID],$baseline->getID());
+                      if ( array_key_exists($blnSrfID, $srfID2BlnIDsMap)) {
+                        array_push($srfID2BlnIDsMap[$blnSrfID], $baseline->getID());
                       } else {
                         $srfID2BlnIDsMap[$blnSrfID] = array($baseline->getID());
                       }
@@ -2217,7 +2249,7 @@ function checkEditionHealth($ednID, $verbose = true) {
                   }
                 }
                 if ($srfIDs && count($srfIDs) > 0) {
-                  $condition = "srf_id in (".join(",",$srfIDs).")";
+                  $condition = "srf_id in (".join(",", $srfIDs).")";
                   $surfaces = new Surfaces($condition,null,null,null);
                   $surfaces->setAutoAdvance(false); // make sure the iterator doesn't prefetch
                   if ($surfaces && $surfaces->getCount()>0) {
@@ -2225,12 +2257,12 @@ function checkEditionHealth($ednID, $verbose = true) {
                       $srfID = $surface->getID();
                       $srfGID = $surface->getGlobalID();
                       if ($surface->isMarkedDelete()) {
-                        array_push($hltherrors,"Error Baseline ($blnGID) linked to surface ($segGID) that is marked for delete.");
+                        array_push($hltherrors, "Error Baseline ($blnGID) linked to surface ($segGID) that is marked for delete.");
                         //ToDo:  add code to add <a> for a service to correct the issue.
                       } else {
                         $textIDs = $surface->getTextIDs();
-                        if (!@$textIDs || !count($textIDs) || array_search($edition->getTextID(),$textIDs) === false) {
-                          array_push($hltherrors,"Error baselines (".(@$srfID2BlnIDsMap[$srfID]?join(",",$srfID2BlnIDsMap[$srfID]):"").") linked to surface ($srfGID) with txtIDs (".(@$textIDs?join(",",$textIDs):"").") that is not linked to edition's text (txt:".$edition->getTextID().").");
+                        if (!@$textIDs || !count($textIDs) || array_search($edition->getTextID(), $textIDs) === false) {
+                          array_push($hltherrors, "Error baselines (".(@$srfID2BlnIDsMap[$srfID]?join(",", $srfID2BlnIDsMap[$srfID]):"").") linked to surface ($srfGID) with txtIDs (".(@$textIDs?join(",", $textIDs):"").") that is not linked to edition's text (txt:".$edition->getTextID().").");
                         }
                       }
                     }
@@ -2239,7 +2271,7 @@ function checkEditionHealth($ednID, $verbose = true) {
               }
             }
           } else {
-            array_push($hltherrors,"Error Loading syllablecluster ids (".join(',',$sclIDs).") for Physical Line Sequences .".$sequences->getError());
+            array_push($hltherrors, "Error Loading syllablecluster ids (".join(',', $sclIDs).") for Physical Line Sequences .".$sequences->getError());
           }
         }
         //process text division sequences
@@ -2247,7 +2279,7 @@ function checkEditionHealth($ednID, $verbose = true) {
           array_push($hltherrors,"**************** Processing Text Division Sequences ***************************");
         }
         if ($txtDivSeqIDs && count($txtDivSeqIDs) > 0) {
-          $condition = "seq_id in (".join(",",$txtDivSeqIDs).")";
+          $condition = "seq_id in (".join(",", $txtDivSeqIDs).")";
           $sequences = new Sequences($condition,null,null,null);
           $sequences->setAutoAdvance(false); // make sure the iterator doesn't prefetch
           if ($sequences && $sequences->getCount()>0) {
@@ -2256,21 +2288,25 @@ function checkEditionHealth($ednID, $verbose = true) {
               $seqLabel = $sequence->getLabel()?$sequence->getLabel():$sequence->getSuperScript();
               $seqGID2Label["seq:$seqID"] = $seqLabel;
               if ($sequence->isMarkedDelete()) {
-                array_push($hltherrors,"Error Text Sequence ($txtSeqGID) has TextDivision Sequence link ($seqLabel/seq:$seqID) that is marked for delete.");
+                array_push($hltherrors, "Error Text Sequence ($txtSeqGID) has TextDivision Sequence link ($seqLabel/seq:$seqID) that is marked for delete.");
                 //ToDo:  add code to add <a> for a service to correct the issue.
               }
               $txtDivGIDs = $sequence->getEntityIDs();
               if (!$txtDivGIDs) {
-                array_push($hltherrors,"Error TextDivision Sequence ($seqLabel/seq:$seqID) is Empty");
+                array_push($hltherrors, "Error TextDivision Sequence ($seqLabel/seq:$seqID) is Empty");
               } else {
-                $stripTokCmpGIDs = preg_replace("/(tok|cmp)\:/","",$txtDivGIDs);
-                if (strpos(join(' ',$stripTokCmpGIDs),":") !== false) {
-                  array_push($hltherrors,"Error TextDivision Sequence ($seqLabel/seq:$seqID) not all entity GIDs are token or compound type. (".join(',',$txtDivGIDs).").");
+                $stripTokCmpGIDs = preg_replace("/(tok|cmp)\:/", "", $txtDivGIDs);
+                if (strpos(join(' ', $stripTokCmpGIDs), ":") !== false) {
+                  array_push($hltherrors, "Error TextDivision Sequence ($seqLabel/seq:$seqID) not all entity GIDs are token or compound type. (".join(',', $txtDivGIDs).").");
                 } else {
-                  if (count($dups = array_intersect($tokCmpGIDs,$txtDivGIDs))) {
-                      array_push($hltherrors,"Error TextDivision Sequence ($seqLabel/seq:$seqID) has duplicate Tok/Cmp GIDs (".join(',',$dups).").");
-                  }
-                  $tokCmpGIDs = array_unique(array_merge($tokCmpGIDs,$txtDivGIDs));
+                    if (count($dups = array_intersect($tokCmpGIDs, $txtDivGIDs))) {
+                        array_push(
+                            $hltherrors, 
+                            "Error TextDivision Sequence ($seqLabel/seq:$seqID) has duplicate Tok/Cmp GIDs (".
+                            join(',', $dups).")."
+                        );
+                    }
+                  $tokCmpGIDs = array_unique(array_merge($tokCmpGIDs, $txtDivGIDs));
                   foreach ($txtDivGIDs as $txtDivGID) {
                     $gid2SeqMap[$txtDivGID] = "seq:$seqID";
                   }
@@ -2281,25 +2317,25 @@ function checkEditionHealth($ednID, $verbose = true) {
         }
         //process tokens and compounds
         if ($verbose) {
-          array_push($hltherrors,"**************** Processing Tokens and Compounds ***************************");
+          array_push($hltherrors, "**************** Processing Tokens and Compounds ***************************");
         }
         if ($tokCmpGIDs && count($tokCmpGIDs) > 0) {
           foreach ($tokCmpGIDs as $tokCmpGID) {
             $txtDivSeqGID = $gid2SeqMap[$tokCmpGID];
-            if (($index = array_search($tokCmpGID,$txtDivGIDs)) !== false) {
-              array_splice($txtDivGIDs,$index,1);
+            if (($index = array_search($tokCmpGID, $txtDivGIDs)) !== false) {
+              array_splice($txtDivGIDs, $index,1);
             }
             $seqLabel =  $seqGID2Label[$txtDivSeqGID];
             $ctxMessage = "Text Division Sequence ($seqLabel/$txtDivSeqGID)";
-            validateTokCmp($tokCmpGID,$ctxMessage,$tokCmpGID);
+            validateTokCmp($tokCmpGID, $ctxMessage, $tokCmpGID);
           }
         }
         //check syllable vs token graIDs
         if ($verbose) {
-          array_push($hltherrors,"**************** Checking graIDs match for syllable and tokens ***************************");
+          array_push($hltherrors, "**************** Checking graIDs match for syllable and tokens ***************************");
         }
         while ($graID = array_shift($sclGraphemeIDs)) {
-          $index = array_search($graID,$hlthtokGraphemeIDs);
+          $index = array_search($graID, $hlthtokGraphemeIDs);
           if ($index === false) {//syllable grapheme not found in any token
             //find sclGID
             $sclGID = $gra2SclGID[$graID];
@@ -2307,9 +2343,9 @@ function checkEditionHealth($ednID, $verbose = true) {
             $seqGID = $gid2SeqMap[$sclGID];
             $seqLabel = $seqGID2Label[$seqGID];
             //write out error message
-            array_push($hltherrors,"Error Physical Line Sequence ($seqLabel/$seqGID) has syllable ($sclGID) with grapheme (gra:$graID) that is not contained in a token.");
+            array_push($hltherrors, "Error Physical Line Sequence ($seqLabel/$seqGID) has syllable ($sclGID) with grapheme (gra:$graID) that is not contained in a token.");
           } else {
-            array_splice($hlthtokGraphemeIDs,$index,1);
+            array_splice($hlthtokGraphemeIDs, $index, 1);
           }
         }
         if (count($hlthtokGraphemeIDs)) {//we have token graphemes that are not in a syllable
@@ -2319,97 +2355,97 @@ function checkEditionHealth($ednID, $verbose = true) {
             //find the token context
             $ctxLabel = $hlthtokGID2CtxLabel[$tokGID];
             //write out error message
-            array_push($hltherrors,"Error $ctxLabel has token ($tokGID) that has a grapheme (gra:$graID) that is not in a syllable.");
+            array_push($hltherrors, "Error $ctxLabel has token ($tokGID) that has a grapheme (gra:$graID) that is not in a syllable.");
           }
         }
         //process structure sequences
         if ($verbose) {
-          array_push($hltherrors,"**************** Processing Structural Analysis Sequences ***************************");
+          array_push($hltherrors, "**************** Processing Structural Analysis Sequences ***************************");
         }
         if ($structuralSeqIDs && count($structuralSeqIDs) > 0) {
           $processedSeqIDs = array();
           while ($seqID = array_shift($structuralSeqIDs)) {
             $sequence = new Sequence($seqID);
             if ($sequence->hasError()) {
-              array_push($hltherrors,"Error Strucutral Sequence (seq:$seqID) cannot be loaded. Error:".$sequence->getErrors(true));
+              array_push($hltherrors, "Error Strucutral Sequence (seq:$seqID) cannot be loaded. Error:".$sequence->getErrors(true));
               continue;
             }
             $seqGID = $sequence->getGlobalID();
             $seqLabel = $sequence->getLabel()?$sequence->getLabel():$sequence->getSuperScript();
             $seqGID2Label[$seqGID] = $seqLabel;
             if ($sequence->isMarkedDelete()) {
-              array_push($hltherrors,"Error Structural Sequence ($seqLabel/seq:$seqID) is marked for delete.");
+              array_push($hltherrors, "Error Structural Sequence ($seqLabel/seq:$seqID) is marked for delete.");
               //ToDo:  add code to add <a> for a service to correct the issue.
             }
             $seqEntityGIDs = $sequence->getEntityIDs();
             if (!$seqEntityGIDs || count($seqEntityGIDs) == 0) {
-              array_push($hltherrors,"Error Strucutral Sequence (seq:$seqID) has no entity ids.");
+              array_push($hltherrors, "Error Strucutral Sequence (seq:$seqID) has no entity ids.");
               continue;
             }
             foreach ($seqEntityGIDs as $seqEntityGID) {
-              $prefix =substr($seqEntityGID,0,3);
+              $prefix =substr($seqEntityGID, 0, 3);
               switch ($prefix) {
                 case 'seq':
-                  $subSeqID = substr($seqEntityGID,4);
+                  $subSeqID = substr($seqEntityGID, 4);
                   $subsequence = new Sequence($subSeqID);
                   if ($subsequence->hasError()) {
-                    array_push($hltherrors,"Error Strucutral Sequence ($seqLabel/$seqGID) has subsequence $seqEntityGID with loading error. Error:".$subsequence->getErrors(true));
+                    array_push($hltherrors, "Error Strucutral Sequence ($seqLabel/$seqGID) has subsequence $seqEntityGID with loading error. Error:".$subsequence->getErrors(true));
                     continue;
                   }
                   $subSeqLabel = $subsequence->getLabel()?$subsequence->getLabel():$subsequence->getSuperScript();
                   $seqGID2Label[$seqEntityGID] = $subSeqLabel;
                   if ($sequence->isMarkedDelete()) {
-                    array_push($hltherrors,"Error Structural Sequence ($subSeqLabel/$seqEntityGID) is marked for delete.");
+                    array_push($hltherrors, "Error Structural Sequence ($subSeqLabel/$seqEntityGID) is marked for delete.");
                     continue;
                     //ToDo:  add code to add <a> for a service to correct the issue.
                   }
                   if ( $seqGID == $seqEntityGID ) {//recursion
-                    array_push($hltherrors,"Error Strucutral Sequence ($seqLabel/$seqGID) has $seqEntityGID as contained entity (recursion)");
+                    array_push($hltherrors, "Error Strucutral Sequence ($seqLabel/$seqGID) has $seqEntityGID as contained entity (recursion)");
                   } else {
-                    if (array_key_exists($seqEntityGID,$processedSeqIDs)) {
-                      array_push($hlthwarnings,"Warning Strucutral Sequence ($seqLabel/$seqGID) has child $subSeqLabel/$seqEntityGID already processed as child of ".join(",",$processedSeqIDs[$seqEntityGID]));
-                      array_push($processedSeqIDs[$seqEntityGID],$seqGID);
+                    if (array_key_exists($seqEntityGID, $processedSeqIDs)) {
+                      array_push($hlthwarnings, "Warning Strucutral Sequence ($seqLabel/$seqGID) has child $subSeqLabel/$seqEntityGID already processed as child of ".join(",", $processedSeqIDs[$seqEntityGID]));
+                      array_push($processedSeqIDs[$seqEntityGID], $seqGID);
                     } else {
-                      if (!in_array($subSeqID,$structuralSeqIDs)) {
-                        array_push($structuralSeqIDs,$subSeqID); //walk tree
+                      if (!in_array($subSeqID, $structuralSeqIDs)) {
+                        array_push($structuralSeqIDs, $subSeqID); //walk tree
                       }
                       $processedSeqIDs[$seqEntityGID] = array($seqGID);
                     }
                   }
                   break;
                 case 'tok':
-                  if (!in_array($seqEntityGID,$tokCmpGIDs)) {// structure with non edition tok/cmp
-                    array_push($hltherrors,"Error Strucutral Sequence ($seqLabel/$seqGID) contains token $seqEntityGID which is not part of the edition.");
-                    $token = new Token(substr($seqEntityGID,4));
+                  if (!in_array($seqEntityGID, $tokCmpGIDs)) {// structure with non edition tok/cmp
+                    array_push($hltherrors, "Error Strucutral Sequence ($seqLabel/$seqGID) contains token $seqEntityGID which is not part of the edition.");
+                    $token = new Token(substr($seqEntityGID, 4));
                     if ($token->hasError()) {
-                      array_push($hltherrors,"Error Strucutral Sequence ($seqLabel/$seqGID) has token $seqEntityGID with loading error. Error:".$token->getErrors(true));
+                      array_push($hltherrors, "Error Strucutral Sequence ($seqLabel/$seqGID) has token $seqEntityGID with loading error. Error:".$token->getErrors(true));
                       continue;
                     }
                     if ($token->isMarkedDelete()) {
-                      array_push($hltherrors,"Error Structural Sequence ($seqLabel/$seqGID) has token $seqEntityGID which is marked for delete.");
+                      array_push($hltherrors, "Error Structural Sequence ($seqLabel/$seqGID) has token $seqEntityGID which is marked for delete.");
                       continue;
                       //ToDo:  add code to add <a> for a service to correct the issue.
                     }
                     if (count($token->getGraphemeIDs())==0) {
-                      array_push($hltherrors,"Error Structural Sequence ($seqLabel/$seqGID) has token $seqEntityGID which has no graphemes.");
+                      array_push($hltherrors, "Error Structural Sequence ($seqLabel/$seqGID) has token $seqEntityGID which has no graphemes.");
                     }
                   }
                   break;
                 case 'cmp':
-                  if (!in_array($seqEntityGID,$tokCmpGIDs)) {// structure with non edition tok/cmp
-                    array_push($hltherrors,"Error Strucutral Sequence ($seqLabel/$seqGID) contains compound $seqEntityGID which is not part of the edition.");
-                    $compound = new Compound(substr($seqEntityGID,4));
+                  if (!in_array($seqEntityGID, $tokCmpGIDs)) {// structure with non edition tok/cmp
+                    array_push($hltherrors, "Error Strucutral Sequence ($seqLabel/$seqGID) contains compound $seqEntityGID which is not part of the edition.");
+                    $compound = new Compound(substr($seqEntityGID, 4));
                     if ($compound->hasError()) {
-                      array_push($hltherrors,"Error Strucutral Sequence ($seqLabel/$seqGID) has compound $seqEntityGID with loading error. Error:".$compound->getErrors(true));
+                      array_push($hltherrors, "Error Strucutral Sequence ($seqLabel/$seqGID) has compound $seqEntityGID with loading error. Error:".$compound->getErrors(true));
                       continue;
                     }
                     if ($compound->isMarkedDelete()) {
-                      array_push($hltherrors,"Error Structural Sequence ($seqLabel/$seqGID) has compound $seqEntityGID which is marked for delete.");
+                      array_push($hltherrors, "Error Structural Sequence ($seqLabel/$seqGID) has compound $seqEntityGID which is marked for delete.");
                       continue;
                       //ToDo:  add code to add <a> for a service to correct the issue.
                     }
                     if (count($compound->getComponentIDs())==0) {
-                      array_push($hltherrors,"Error Structural Sequence ($seqLabel/$seqGID) has compound $seqEntityGID which has no components.");
+                      array_push($hltherrors, "Error Structural Sequence ($seqLabel/$seqGID) has compound $seqEntityGID which has no components.");
                     }
                   }
                   break;
@@ -2480,7 +2516,7 @@ function checkGlossaryHealth($catID, $verbose = true) {
     $catalog = new Catalog($catID);
   }
   if (!$catalog || $catalog->hasError()) {//no catalog or unavailable so warn
-    array_push($hlthwarnings,"Usage = testGlossaryLinks.php?db=dbnameGoesHere&catID=idOfCatalogGlossaryGoesHere.");
+    array_push($hlthwarnings, "Usage = testGlossaryLinks.php?db=dbnameGoesHere&catID=idOfCatalogGlossaryGoesHere.");
  } else {
     $termInfo = getTermInfoForLangCode('en');
     $glossaryCatalogTypeID = $termInfo['idByTerm_ParentLabel']['glossary-catalogtype'];//term dependency
@@ -2491,46 +2527,46 @@ function checkGlossaryHealth($catID, $verbose = true) {
     $imageBaselineTypeID = $termInfo['idByTerm_ParentLabel']['image-baselinetype'];//term dependency
     $transBaselineTypeID = $termInfo['idByTerm_ParentLabel']['transcription-baselinetype'];//term dependency
     $catID = $catalog->getID();
-    $lemmas = new Lemmas("lem_catalog_id = $catID",'lem_id',null,null);
+    $lemmas = new Lemmas("lem_catalog_id = $catID", 'lem_id',null,null);
     if ($lemmas && $lemmas->getCount()>0) {
       if ($verbose) {
-        array_push($hltherrors,"**************** Processing Glossary Lemmas ***************************");
+        array_push($hltherrors, "**************** Processing Glossary Lemmas ***************************");
       }
       foreach ($lemmas as $lemma) {
         $lemID = $lemma->getID();
         $lemValue = $lemma->getValue();
         $lemTag2Value["lem$lemID"] = $catID;
         if ($lemma->isMarkedDelete()) {
-          array_push($hltherrors,"Error glossary (cat:$catID) has lemma ($lemValue/lem$lemID) that is marked for delete.");
+          array_push($hltherrors, "Error glossary (cat:$catID) has lemma ($lemValue/lem$lemID) that is marked for delete.");
           //ToDo  add code to add <a> for a service to correct the issue.
           continue;
         } else {//save to check components
-          array_push($lemIDs,$lemID);
+          array_push($lemIDs, $lemID);
         }
         $relatedGIDsByLinkType = $lemma->getRelatedEntitiesByLinkType();
         $seeLinkTypeID = Entity::getIDofTermParentLabel('See-LemmaLinkage');
         $cfLinkTypeID = Entity::getIDofTermParentLabel('Compare-LemmaLinkage');
         $relatedNode = null;
-        if ($relatedGIDsByLinkType && array_key_exists($seeLinkTypeID,$relatedGIDsByLinkType)) {
+        if ($relatedGIDsByLinkType && array_key_exists($seeLinkTypeID, $relatedGIDsByLinkType)) {
           foreach ($relatedGIDsByLinkType[$seeLinkTypeID] as $linkGID) {
             $entity = EntityFactory::createEntityFromGlobalID($linkGID);
             if (!$entity || $entity->hasError() || $entity->isMarkedDelete()) {
-              array_push($hltherrors,"Lemma ($lemValue/lem$lemID) has link to invalid entity $linkGID.");
+              array_push($hltherrors, "Lemma ($lemValue/lem$lemID) has link to invalid entity $linkGID.");
             }
           }
         }
-        if ($relatedGIDsByLinkType && array_key_exists($cfLinkTypeID,$relatedGIDsByLinkType)) {
+        if ($relatedGIDsByLinkType && array_key_exists($cfLinkTypeID, $relatedGIDsByLinkType)) {
           foreach ($relatedGIDsByLinkType[$cfLinkTypeID] as $linkGID) {
             $entity = EntityFactory::createEntityFromGlobalID($linkGID);
             if (!$entity || $entity->hasError() || $entity->isMarkedDelete()) {
-              array_push($hltherrors,"Lemma ($lemValue/lem$lemID) has link to invalid entity $linkGID.");
+              array_push($hltherrors, "Lemma ($lemValue/lem$lemID) has link to invalid entity $linkGID.");
             }
           }
         }
       }
       //process lemma components
       if ($verbose) {
-        array_push($hltherrors,"**************** Processing Lemma Components ***************************");
+        array_push($hltherrors, "**************** Processing Lemma Components ***************************");
       }
       if ($lemIDs && count($lemIDs) > 0) {
         $lemmas->rewind();
@@ -2539,7 +2575,7 @@ function checkGlossaryHealth($catID, $verbose = true) {
           $lemValue = $lemma->getValue();
           $lemTag = $lemma->getEntityTag();
           if (count($entGIDs) == 0) {
-            array_push($hlthwarnings,"Warning lemma ($lemValue/$lemTag) that is has no attested forms.");
+            array_push($hlthwarnings, "Warning lemma ($lemValue/$lemTag) that is has no attested forms.");
             continue;
           }
           foreach ($entGIDs as $entGID) {
@@ -2548,58 +2584,58 @@ function checkGlossaryHealth($catID, $verbose = true) {
               if (!@$infIDs[$entGID]) {
                 $infIDs[$entGID] = $lemTag;
               } else {
-                array_push($hltherrors,"Inflection $entGID already a component of ".$infIDs[$entGID]);
+                array_push($hltherrors, "Inflection $entGID already a component of ".$infIDs[$entGID]);
               }
             } else {
               if (!@$tokCmpGIDs[$entGID]) {
                 $tokCmpGIDs[$entGID] = $lemTag;
               } else {
-                array_push($hltherrors,"Processing Token/Compound $entGID for $lemTag already a component of ".$tokCmpGIDs[$entGID]);
+                array_push($hltherrors, "Processing Token/Compound $entGID for $lemTag already a component of ".$tokCmpGIDs[$entGID]);
               }
             }
           }
         }
         if ($verbose) {
-          array_push($hltherrors,"**************** Processing Inflections ***************************");
+          array_push($hltherrors, "**************** Processing Inflections ***************************");
         }
         if ($infIDs && count($infIDs) > 0) {
           foreach ($infIDs as $infGID => $lemTag) {
             $inflection = new Inflection(substr($infGID,4));
             if (!$inflection || $inflection->hasError()) {
-              array_push($hltherrors,"Error Unable to create inflection ($infGID) for lemma $lemTag.".
+              array_push($hltherrors, "Error Unable to create inflection ($infGID) for lemma $lemTag.".
                           (($inflection && $inflection->hasError())?"Errors: ".$inflection->getErrors(true):""));
               continue;
             }
             if ($inflection->isMarkedDelete()) {
-              array_push($hltherrors,"Lemma ($lemValue/$lemTag) has inflection $entGID that is marked for delete.");
+              array_push($hltherrors, "Lemma ($lemValue/$lemTag) has inflection $entGID that is marked for delete.");
               continue;
             }
             $infTag = $inflection->getEntityTag();
             $entGIDs = $inflection->getComponentIDs();
             if (!$entGIDs || count($entGIDs) == 0) {
-              array_push($hltherrors,"Lemma ($lemTag) has inflection $infTag that has no attested forms.");
+              array_push($hltherrors, "Lemma ($lemTag) has inflection $infTag that has no attested forms.");
               continue;
             }
             foreach ($entGIDs as $entGID) {
               if (!@$tokCmpGIDs[$entGID]) {
                 $tokCmpGIDs[$entGID] = $infTag;
               } else {
-                array_push($hltherrors,"Processing Token/Compound $entGID for $infTag (of $lemTag) which is already a component of ".$tokCmpGIDs[$entGID]);
+                array_push($hltherrors, "Processing Token/Compound $entGID for $infTag (of $lemTag) which is already a component of ".$tokCmpGIDs[$entGID]);
               }
             }
           }
         }
         if ($verbose) {
-          array_push($hltherrors,"**************** Processing Tokens and Compounds ***************************");
+          array_push($hltherrors, "**************** Processing Tokens and Compounds ***************************");
         }
         if ($tokCmpGIDs && count($tokCmpGIDs) > 0) {
           foreach ($tokCmpGIDs as $tokCmpGID => $cntTag) {
             if (strlen($tokCmpGID)< 4) {
-              array_push($hltherrors,"TokGIDs has invalid tag for Container $cntTag.");
+              array_push($hltherrors, "TokGIDs has invalid tag for Container $cntTag.");
               continue;
             }
             $ctxMessage = "Containing Entity ($cntTag)";
-            validateTokCmp($tokCmpGID,$ctxMessage,$tokCmpGID);
+            validateTokCmp($tokCmpGID, $ctxMessage, $tokCmpGID);
           }
         }
       }
@@ -2662,13 +2698,13 @@ function synchSegmentImageCache($blnIDs = null, $reclipSegments = false) {
       } else {
         $image = $baseline->getImage(true);
         // if baseline has a boundary then get bounding box to translate segment points to the origin of the bounding box
-        if($baseline->getImageBoundary()){
+        if ($baseline->getImageBoundary()){
           $blnBBox = new BoundingBox($baseline->getImageBoundary());
         } else {
           $blnBBox = null;
         }
         // if the image has a boundary then get bounding box to translate segment points to the origin of the bounding box
-        if($image && $image->getBoundary()){
+        if ($image && $image->getBoundary()){
           $imgBBox = new BoundingBox($image->getBoundary());
         } else {
           $imgBBox = null;
@@ -2688,14 +2724,14 @@ function synchSegmentImageCache($blnIDs = null, $reclipSegments = false) {
                   continue;
                 }
               }
-              if($blnBBox){
-                $polygon->translate($blnBBox->getXOffset(),$blnBBox->getYOffset());
+              if ($blnBBox){
+                $polygon->translate($blnBBox->getXOffset(), $blnBBox->getYOffset());
               }
-              if($imgBBox){
-                $polygon->translate($imgBBox->getXOffset(),$imgBBox->getYOffset());
+              if ($imgBBox){
+                $polygon->translate($imgBBox->getXOffset(), $imgBBox->getYOffset());
               }
               $log .= "clipping image for ".$segment->getGlobalID()." \n";
-              $segment->cacheSegmentImages(array(constructCroppedImageURL($image->getURL(),$polygon)));
+              $segment->cacheSegmentImages(array(constructCroppedImageURL($image->getURL(), $polygon)));
             }
           }// end for boundary
         }
@@ -2755,14 +2791,14 @@ function reorderSegments($blnIDs = null, $deleteAfterMerge = true) {
   $usedOrdSegIDs = array();
   $ordCnt = $dbMgr->getRowCount();
   if ($ordCnt == 0) {
-    array_push($errors,"no ordinals found in scratch of any segments");
+    array_push($errors, "no ordinals found in scratch of any segments");
   } else {
     $lastOrd = null;
     while ($row = $dbMgr->fetchResultRow()) {
       if ($lastOrd == $row['ord']) {
         $msg = " found duplicate ordinal ".$row['ord']." on segment ".$row['seg_id'];
         $log .= $msg."\n";
-        array_push($warnings,$msg);
+        array_push($warnings, $msg);
       }
       $lastOrd = $row['ord'];
       array_push($ordSegIDs, $row['seg_id']);
@@ -2770,24 +2806,24 @@ function reorderSegments($blnIDs = null, $deleteAfterMerge = true) {
   }
 
   if (count($errors) == 0) {
-    $segments = new Segments(null,'seg_id',null,null);
+    $segments = new Segments(null, 'seg_id',null,null);
     if ($segments->getError()) {
-      array_push($errors,"Error loading segments error: ".$segments->getError());
+      array_push($errors, "Error loading segments error: ".$segments->getError());
     } else if ($segments->getCount() < ($ordCnt * 2)) {
-      array_push($errors,"Error segment count mismatch database segment count (".$segments->getCount().") should be at least twice the count ($ordCnt) of ordered segments");
+      array_push($errors, "Error segment count mismatch database segment count (".$segments->getCount().") should be at least twice the count ($ordCnt) of ordered segments");
     } else {
       foreach ($ordSegIDs as $segID) {
         $srcSegment = $segments->searchKey($segID);
         $trgSegment = $segments->current();
         if (!$srcSegment) {
-          array_push($errors,"unable to find source segment for seg:$segID");
+          array_push($errors, "unable to find source segment for seg:$segID");
         } else if ($srcSegment->isReadonly()) {
-//          array_push($errors,"source segment for seg:$segID is read only");
+//          array_push($errors, "source segment for seg:$segID is read only");
         }
         if (!$trgSegment) {
-          array_push($errors,"no target segment for seg:$segID");
+          array_push($errors, "no target segment for seg:$segID");
         } else if ($trgSegment->isReadonly()) {
-//          array_push($errors,"target segment for seg:$segID is read only");
+//          array_push($errors, "target segment for seg:$segID is read only");
         }
         if (count($errors)) {
           break;
@@ -2801,20 +2837,21 @@ function reorderSegments($blnIDs = null, $deleteAfterMerge = true) {
         }
         $trgSegment->save();
         if ($trgSegment->hasError()) {
-          array_push($errors,"Error saving target segment id = ".$trgSegment->getID()." errors - ".join(",",$trgSegment->getErrors()));
+          array_push($errors, "Error saving target segment id = ".$trgSegment->getID()." errors - ".join(",", $trgSegment->getErrors()));
           break;
         }
         $srcSegment->markForDelete();
         if ($srcSegment->hasError()) {
-          array_push($errors,"Error deleting source segment id = ".$srcSegment->getID()." errors - ".join(",",$srcSegment->getErrors()));
+          array_push($errors, "Error deleting source segment id = ".$srcSegment->getID()." errors - ".join(",", $srcSegment->getErrors()));
           break;
         }
         array_push($usedOrdSegIDs, $srcSegment->getID());
         $log .= "Successfully merged data from source seg$segID into target seg$trgSegID.\n";
         $segments->next();
       }
-      if ($deleteAfterMerge && count($errors) == 0) {//can remove ordinal segments, todo check if there is overlap in source and target segments
-        $query = "delete from segment where seg_id in (".join(",",$usedOrdSegIDs).")";
+      //can remove ordinal segments, todo check if there is overlap in source and target segments
+      if ($deleteAfterMerge && count($errors) == 0) {
+        $query = "delete from segment where seg_id in (".join(",", $usedOrdSegIDs).")";
         $dbMgr->query($query);
       }
     }
@@ -2844,16 +2881,18 @@ function validateTokCmp ($tokCmpGID, $ctxMessage, $topTokCmpGID) {
   global $hltherrors, $hlthwarnings, $hlthtokGraphemeIDs, $hlthgra2TokGID, $hlthtokGID2CtxLabel;
   $entity = EntityFactory::createEntityFromGlobalID($tokCmpGID);
   if (!$entity || $entity->hasError()) {
-    array_push($hltherrors,"Error Unable to create tok/cmp ($tokCmpGID) located in $ctxMessage.".
-                (($entity && $entity->hasError())?"Errors: ".$entity->getErrors(true):EntityFactory::$error));
+    array_push(
+        $hltherrors, "Error Unable to create tok/cmp ($tokCmpGID) located in $ctxMessage.".
+                (($entity && $entity->hasError())?"Errors: ".$entity->getErrors(true):EntityFactory::$error)
+    );
   } else {
     if ($entity->isMarkedDelete()) {
-      array_push($hltherrors,"Error $ctxMessage has token/compound link ($tokCmpGID) that is marked for delete.");
+      array_push($hltherrors, "Error $ctxMessage has token/compound link ($tokCmpGID) that is marked for delete.");
       //ToDo:  add code to add <a> for a service to correct the issue.
     } else {// process each token or compound depth first
       $label = $entity->getValue();
-      if(!$label || strlen($label) == 0) {
-        array_push($hltherrors,"Error tok/cmp ($tokCmpGID) located in $ctxMessage has no value.");
+      if (!$label || strlen($label) == 0) {
+        array_push($hltherrors, "Error tok/cmp ($tokCmpGID) located in $ctxMessage has no value.");
       }
       $newCtxMessage = "$ctxMessage, token/compound ($label/$tokCmpGID)";
       $prefix = $entity->getEntityTypeCode();
@@ -2861,42 +2900,42 @@ function validateTokCmp ($tokCmpGID, $ctxMessage, $topTokCmpGID) {
         $componentGIDs = $entity->getComponentIDs();
         if (count($componentGIDs)) {
           foreach ($componentGIDs as $componentGID) {
-            validateTokCmp($componentGID,$newCtxMessage,$topTokCmpGID);//**********RECURSION*********
+            validateTokCmp($componentGID, $newCtxMessage, $topTokCmpGID);//**********RECURSION*********
           }
         } else {
-          array_push($hltherrors,"Error $ctxMessage has compound link ($tokCmpGID) missing components.");
+          array_push($hltherrors, "Error $ctxMessage has compound link ($tokCmpGID) missing components.");
         }
       } else if ($prefix == "tok") {//token so process graphemes
         $tokGraIDs = $entity->getGraphemeIDs();
         if ($tokGraIDs && count($tokGraIDs) > 0) {
-          $dups = array_intersect($hlthtokGraphemeIDs,$tokGraIDs);//check for repeated graID could be sandhi
+          $dups = array_intersect($hlthtokGraphemeIDs, $tokGraIDs);//check for repeated graID could be sandhi
           foreach ($tokGraIDs as $graID) {
             $grapheme = new Grapheme($graID);
             $hlthgra2TokGID[$graID] = $tokCmpGID;
             $hlthtokGID2CtxLabel[$tokCmpGID] = $newCtxMessage;
             if (!$grapheme || $grapheme->hasError()) {
-              array_push($hltherrors,"Error Unable to create graphene (".$grapheme->getGrapheme()."/gra:$graID) located in $newCtxMessage.".
+              array_push($hltherrors, "Error Unable to create graphene (".$grapheme->getGrapheme()."/gra:$graID) located in $newCtxMessage.".
                           ($grapheme->hasError()?"Errors: ".$grapheme->getErrors(true):""));
             } else {
               if ($grapheme->isMarkedDelete()) {
-                array_push($hltherrors,"Error $newCtxMessage has grapheme (".$grapheme->getGrapheme()."/gra:$graID) that is marked for delete.");
+                array_push($hltherrors, "Error $newCtxMessage has grapheme (".$grapheme->getGrapheme()."/gra:$graID) that is marked for delete.");
                 //ToDo:  add code to add <a> link for a service to correct the issue.
               }
-              if ($dups && in_array($graID,$dups)) {
+              if ($dups && in_array($graID, $dups)) {
                 if (!$grapheme->getDecomposition()) {
-                  array_push($hltherrors,"Error $newCtxMessage with duplicate grapheme (".$grapheme->getGrapheme()."/gra:$graID) without sandhi decomposition.");
+                  array_push($hltherrors, "Error $newCtxMessage with duplicate grapheme (".$grapheme->getGrapheme()."/gra:$graID) without sandhi decomposition.");
                 }
               } else {
-                array_push($hlthtokGraphemeIDs,$graID);
+                array_push($hlthtokGraphemeIDs, $graID);
               }
             }
           }
         } else {
-          array_push($hltherrors,"Error $newCtxMessage has no graphemes.");
+          array_push($hltherrors, "Error $newCtxMessage has no graphemes.");
           //todo remove this from seqeunce and mark for delete
         }
       } else {//unknown
-        array_push($hltherrors,"Error $ctxMessage has non tok/cmp link type ($tokCmpGID).");
+        array_push($hltherrors, "Error $ctxMessage has non tok/cmp link type ($tokCmpGID).");
       }
     }
   }
@@ -2928,24 +2967,24 @@ mb_regex_encoding('UTF-8');
 * @param mixed $rplcStrings replacement string
 * @param mixed $mbStr subject string
 */
-function mbPregReplace($srchStrings,$rplcStrings,$mbStr) {
+function mbPregReplace($srchStrings, $rplcStrings, $mbStr) {
   $cnt = count($srchStrings);
   $mbStrReplaced = $mbStr;
   for ($i=0; $i<$cnt; $i++) {
-    $mbStrReplaced = mb_ereg_replace($srchStrings[$i],$rplcStrings[$i],$mbStrReplaced);
+    $mbStrReplaced = mb_ereg_replace($srchStrings[$i], $rplcStrings[$i], $mbStrReplaced);
   }
   return $mbStrReplaced;
 }
 
 
-function findSclGIDsFromPattern($pattern,$sclGIDsByLinePostion) {
+function findSclGIDsFromPattern($pattern, $sclGIDsByLinePostion) {
   $sclGIDs = array();
   $lineOrds = array();
   $sclOrds = array();
-  list($lpattern,$spattern) = explode(":",$pattern);
+  list($lpattern, $spattern) = explode(":", $pattern);
   if (!$lpattern || $lpattern == "L*") {//all lines pattern
     $lineOrds = array_keys($sclGIDsByLinePostion);
-  } else if (preg_match("/L(\d+)(\+|\-)(\d+)/",$lpattern,$matches)) {//every N lines or range pattern
+  } else if (preg_match("/L(\d+)(\+|\-)(\d+)/", $lpattern, $matches)) {//every N lines or range pattern
       $lineOrd = $matches[1]-1;
       if ($matches[2] == "+") {//every N
         $ordInc = $matches[3];
@@ -2955,7 +2994,7 @@ function findSclGIDsFromPattern($pattern,$sclGIDsByLinePostion) {
         $ordInc = 1;
       }
       while ($lineOrd < $limitOrd) {
-        array_push($lineOrds,$lineOrd);
+        array_push($lineOrds, $lineOrd);
         $lineOrd += $ordInc;
       }
   } else {//simple line ordinal case
@@ -2968,9 +3007,9 @@ function findSclGIDsFromPattern($pattern,$sclGIDsByLinePostion) {
   if (!$spattern || $spattern == "S*") {//all syllables
 //    $lineOrds = array_keys($sclGIDsByLinePostion);
     for ($i=0;$i < $maxLine; $i++) {
-      array_push($sclOrds,$i);//load ordinals to the max as overrun is ignored
+      array_push($sclOrds, $i);//load ordinals to the max as overrun is ignored
     }
-  } else if (preg_match("/S(\d+)(\+|\-)(\d+)/",$spattern,$matches)) {//every N lines or range pattern
+  } else if (preg_match("/S(\d+)(\+|\-)(\d+)/", $spattern, $matches)) {//every N lines or range pattern
       $sclOrd = $matches[1]-1;
       if ($matches[2] == "+") {//every N
         $ordInc = $matches[3];
@@ -2980,7 +3019,7 @@ function findSclGIDsFromPattern($pattern,$sclGIDsByLinePostion) {
         $ordInc = 1;
       }
       while ($sclOrd < $limitOrd) {
-        array_push($sclOrds,$sclOrd);
+        array_push($sclOrds, $sclOrd);
         $sclOrd += $ordInc;
       }
   } else {//simple line ordinal case
@@ -2994,7 +3033,7 @@ function findSclGIDsFromPattern($pattern,$sclGIDsByLinePostion) {
         if ($sOrd < $maxOrd) {//skip overrun
           $sclGID = $line[$sOrd];
           if ($sclGID) {
-            array_push($sclGIDs,$sclGID);
+            array_push($sclGIDs, $sclGID);
           }
         }
       }
@@ -3012,7 +3051,7 @@ function getUserGroupIDforName($name) {
 
 function clearSessionCatCache() {
   foreach(array_keys($_SESSION) as $key) {
-    if (preg_match('/^cache-cat\d+'.DBNAME.'/',$key)) {
+    if (preg_match('/^cache-cat\d+'.DBNAME.'/', $key)) {
       unset($_SESSION[$key]);
     }
   }
@@ -3033,7 +3072,7 @@ function getToksBoundaryQueryString($tokIDs){
          "where tok_id = $tokID and scl_segment_id is not null and not scl_owner_id = 1)");
     }
     //lineOrd is position in edition while ord is multiple derived edition ordering of the same line
-    return join(" union all ",$subQueries)." order by lineOrd,sylOrd,ord;";
+    return join(" union all ", $subQueries)." order by lineOrd,sylOrd,ord;";
   } else {
     return "select scl_id,seg_baseline_ids,array_position(p.seq_entity_ids::text[],concat('seq:',c.seq_id)::text) as lineOrd, ".
                   "array_position(c.seq_entity_ids::text[],concat('scl:',scl_id)::text) as sylOrd, ".
@@ -3087,7 +3126,7 @@ function getWordsBaselineInfo($tokIDs) {
       }
       if ($polygons && count($polygons) > 0) {
         $polygon = $polygons[0];
-        if (is_a($polygon,'Polygon')) {
+        if (is_a($polygon, 'Polygon')) {
           $segPoints = $polygon->getBoundingRect();
         } else {
           $segPoints = getBoundingRect($polygon);
@@ -3097,10 +3136,10 @@ function getWordsBaselineInfo($tokIDs) {
       }
       if ($curBlnTag && $curBlnTag != $blnTag || $prevLineOrd != $lineOrd) {
         if (count($accPoints) > 0) {//existing point accumulation so save bounding bbox
-          if (!array_key_exists($curBlnTag,$wrdBlnPolygons)) {
+          if (!array_key_exists($curBlnTag, $wrdBlnPolygons)) {
             $bBox = pointsArray2ArrayOfTuples(getBoundingRect($accPoints));
             $wrdBlnPolygons[$curBlnTag] = array($bBox);
-            $wrdBlnScrollTop = array('blnTag'=>$blnTag,'x'=>$bBox[0][0],'y'=>$bBox[0][1],'h'=>($bBox[2][1]-$bBox[0][1]));
+            $wrdBlnScrollTop = array('blnTag'=>$blnTag, 'x'=>$bBox[0][0], 'y'=>$bBox[0][1], 'h'=>($bBox[2][1]-$bBox[0][1]));
           } else {
             array_push($wrdBlnPolygons[$curBlnTag],pointsArray2ArrayOfTuples(getBoundingRect($accPoints)));
           }
@@ -3112,21 +3151,21 @@ function getWordsBaselineInfo($tokIDs) {
         $curBlnTag = $blnTag;
       }
       // aggregate segment points
-      $accPoints = array_merge($accPoints,$segPoints);
+      $accPoints = array_merge($accPoints, $segPoints);
     }
     if (count($accPoints) > 0) {//existing point accumulation so save bounding bbox no bln/line change case
       $bBox = pointsArray2ArrayOfTuples(getBoundingRect($accPoints));
-      if (!array_key_exists($curBlnTag,$wrdBlnPolygons)) {
+      if (!array_key_exists($curBlnTag, $wrdBlnPolygons)) {
         $wrdBlnPolygons[$curBlnTag] = array($bBox);
         if (count($wrdBlnScrollTop) == 0) {
-          $wrdBlnScrollTop = array('blnTag'=>$blnTag,'x'=>$bBox[0][0],'y'=>$bBox[0][1],'h'=>($bBox[2][1]-$bBox[0][1]));
+          $wrdBlnScrollTop = array('blnTag'=>$blnTag, 'x'=>$bBox[0][0], 'y'=>$bBox[0][1], 'h'=>($bBox[2][1]-$bBox[0][1]));
         }
       } else {
         array_push($wrdBlnPolygons[$curBlnTag],pointsArray2ArrayOfTuples(getBoundingRect($accPoints)));
       }
       $accPoints = array();
     }
-    return array($wrdBlnPolygons,$wrdBlnScrollTop);
+    return array($wrdBlnPolygons, $wrdBlnScrollTop);
   }
 }
 
@@ -3138,7 +3177,7 @@ function getEntityFootnoteInfo($entity, $fnTypeIDs, $refresh = false) {
     $fnTextByAnoTag = null;
     if ($linkedAnoIDsByType = $entity->getLinkedAnnotationsByType()) {
       foreach ($fnTypeIDs as $typeID) {
-        if (array_key_exists($typeID,$linkedAnoIDsByType)) {
+        if (array_key_exists($typeID, $linkedAnoIDsByType)) {
           $type = strtolower( Entity::getTermFromID($typeID));
           $typeTag = "trm".$typeID;
           if (!$fnTextByAnoTag) {
@@ -3160,8 +3199,8 @@ function getEntityFootnoteInfo($entity, $fnTypeIDs, $refresh = false) {
     }
     if ($fnTextByAnoTag && count($fnTextByAnoTag) > 0){
       $fnInfo = array('fnHtml' => $fnHtml, 'fnTextByAnoTag' => $fnTextByAnoTag);
-      $entity->storeScratchProperty('fnHtml',$fnHtml);
-      $entity->storeScratchProperty('fnTextByAnoTag',$fnTextByAnoTag);
+      $entity->storeScratchProperty('fnHtml', $fnHtml);
+      $entity->storeScratchProperty('fnTextByAnoTag', $fnTextByAnoTag);
     }
   } else {
     $fnInfo = array('fnHtml' => $fnHtml, 'fnTextByAnoTag' => $fnTextByAnoTag);
@@ -3247,32 +3286,32 @@ function getEdnLookupInfo($edition, $fnTypeIDs = null, $useInlineLabel = true, $
       $physicalLineSeq = new Sequence($seqID);
       if (!$physicalLineSeq || $physicalLineSeq->hasError()) {//no $physicalLineSeqIDsequence or unavailable so warn
         error_log("Warning unable to load edition $ednID's physicalline sequence seq:$seqID. Skipping.".
-                  ($physicalLineSeq->hasError()?" Error: ".join(",",$physicalLineSeq->getErrors()):""));
+                  ($physicalLineSeq->hasError()?" Error: ".join(",", $physicalLineSeq->getErrors()):""));
         continue;
       } else {
-        if (array_key_exists("bln_id",$row)&& $row["bln_id"] != $blnID && array_key_exists("seg_image_pos",$row) && $row["seg_image_pos"]) {// found another baseline need to capture the id
+        if (array_key_exists("bln_id", $row)&& $row["bln_id"] != $blnID && array_key_exists("seg_image_pos", $row) && $row["seg_image_pos"]) {// found another baseline need to capture the id
           $blnID = $row["bln_id"];
           $blnTag = 'bln'.$blnID;
           // collect unique blnIDs for url lookup
-          array_push($blnIDs,$blnID);
+          array_push($blnIDs, $blnID);
         }
         $seqTag = 'seq'.$seqID;
         $seqLabel = $row['seq_label'];
         $lineGraID = $row['nl_gra_id'];
         $lineOrd = $row['lineord'];
-        if (array_key_exists("seg_image_pos",$row) && $row["seg_image_pos"]) {
+        if (array_key_exists("seg_image_pos", $row) && $row["seg_image_pos"]) {
           $bRectPts = (new Polygon($row['seg_image_pos']))->getBoundingRect();
           // calculate baseline position by physical line seqID
-          $lineBlnScrollTop = array('blnTag'=>$blnTag,'x'=>$bRectPts[0],'y'=>$bRectPts[1],'h'=>($bRectPts[5]-$bRectPts[1]));
+          $lineBlnScrollTop = array('blnTag'=>$blnTag, 'x'=>$bRectPts[0], 'y'=>$bRectPts[1], 'h'=>($bRectPts[5]-$bRectPts[1]));
           $lineBlnScrollTops[$seqTag] = $lineBlnScrollTop;
         }
         // create grapheme to line marker lookup for this physical line
         if (!$seqLabel) {
           $seqLabel = $lineOrd?$lineOrd:$seqTag;
         }
-        $fnInfo = getEntityFootnoteInfo($physicalLineSeq,$fnTypeIDs, $refresh);
+        $fnInfo = getEntityFootnoteInfo($physicalLineSeq, $fnTypeIDs, $refresh);
         $fnHtml = $fnInfo?$fnInfo['fnHtml']:"";
-        $fnTextByAnoIDs = $fnInfo?array_merge($fnTextByAnoIDs,$fnInfo['fnTextByAnoTag']):$fnTextByAnoIDs;
+        $fnTextByAnoIDs = $fnInfo?array_merge($fnTextByAnoIDs, $fnInfo['fnTextByAnoTag']):$fnTextByAnoIDs;
         if ($useInlineLabel) {
           $lineHtml = "<span class=\"linelabel $seqTag\">[$seqLabel]";
           $lineHtml .= $fnHtml;//add any line footnotes to end of label
@@ -3282,7 +3321,7 @@ function getEdnLookupInfo($edition, $fnTypeIDs = null, $useInlineLabel = true, $
           $lineHtml .= $fnHtml;//add any line footnotes to end of label
           $lineHtml .= "</span>";
         }
-//          $physicalLineSeq->storeScratchProperty("marker",array('graID' =>$lineGraID,'html' => $lineHtml));
+//          $physicalLineSeq->storeScratchProperty("marker",array('graID' =>$lineGraID, 'html' => $lineHtml));
         $lineHtmlMarkerMap[$lineGraID] = $lineHtml;
 //          $physicalLineSeq->save();
       }
@@ -3293,7 +3332,7 @@ function getEdnLookupInfo($edition, $fnTypeIDs = null, $useInlineLabel = true, $
     }
     // calculate baseline info for each blnID
     if (count($blnIDs)>0){
-      $segBaselines = new Baselines('bln_id in ('.join(',',$blnIDs).')');
+      $segBaselines = new Baselines('bln_id in ('.join(',', $blnIDs).')');
       if ($segBaselines && !$segBaselines->getError() && $segBaselines->getCount() > 0) {
         foreach ($segBaselines as $segBaseline){
           $sourceLookup = array();
@@ -3302,7 +3341,7 @@ function getEdnLookupInfo($edition, $fnTypeIDs = null, $useInlineLabel = true, $
             foreach ($attributions as $attribution) {
               $atbID = $attribution->getID();
               $title = $attribution->getTitle();
-              if (!array_key_exists($atbID,$sourceLookup)) {
+              if (!array_key_exists($atbID, $sourceLookup)) {
                 $sourceLookup[$atbID] = $title;
               }
             }
@@ -3317,7 +3356,7 @@ function getEdnLookupInfo($edition, $fnTypeIDs = null, $useInlineLabel = true, $
             $sort = 1000 * intval($segBaseline->getID());
           }
           $blnInfoBySort[$sort] = array('tag'=>$blnTag, 'url'=>$url, 'imgTag'=>$blnImgTag, 'source'=> $sourceLookup);
-          //$title = substr($url,strrpos($url,'/')+1);//filename
+          //$title = substr($url,strrpos($url, '/')+1);//filename
           $image = $segBaseline->getImage(true);
           //if ($image && $image->getTitle()) {
           $title = $image?$image->getTitle():'';
@@ -3354,7 +3393,7 @@ function getEdnLookupInfo($edition, $fnTypeIDs = null, $useInlineLabel = true, $
         $txtDivSegID = trim($row[0]);
         $tdSeqTokCmpGIDs = explode(",",trim($row[1],"{}"));
         foreach ($tdSeqTokCmpGIDs as $wordGID) {
-          list($prefix,$entID) = explode(':',$wordGID);
+          list($prefix, $entID) = explode(':', $wordGID);
           $wordTag = $prefix.$entID;
           if ($prefix == 'cmp') {
             $compound = new Compound($entID);
@@ -3378,7 +3417,7 @@ function getEdnLookupInfo($edition, $fnTypeIDs = null, $useInlineLabel = true, $
         }
       }
     }
-    $edition->storeScratchProperty('lookupInfo',$ednLookupInfo);
+    $edition->storeScratchProperty('lookupInfo', $ednLookupInfo);
     $edition->save();
   }
   return $ednLookupInfo;
@@ -3391,7 +3430,7 @@ function getTokLocQueryString($tokID){
   $linePhysicalTypeID = Entity::getIDofTermParentLabel('linephysical-textphysical');// warning!!! term dependency
 
   return "select distinct  array_position( b.seq_entity_ids::text[],concat('seq:',c.cid)) as lineord, c.label as linelabel, ".
-         "case when txt_ref is not null and txt_ref != '' then txt_ref else regexp_replace(txt_ckn,$strMatch,$strReplace".($strFlags?",$strFlags":"").") end as txtlabel ".
+         "case when txt_ref is not null and txt_ref != '' then txt_ref else regexp_replace(txt_ckn, $strMatch, $strReplace".($strFlags?", $strFlags":"").") end as txtlabel ".
          "from sequence b left join (select a.seq_id::text as cid, a.seq_label as label, a.seq_scratch::json->>'edOrd' as edord ".
                                     "from sequence a ".
                                     "where a.seq_type_id = $linePhysicalTypeID and ".
@@ -3439,7 +3478,7 @@ function getWordLocation($wordTag) {
         $row = $dbMgr->fetchResultRow();
         $txtLabel = $row['txtlabel'];
         $lineord = $row['lineord'];
-        array_push($labels,$row['linelabel']);
+        array_push($labels, $row['linelabel']);
       }
       $dbMgr->query(getTokLocQueryString($lTokID));
       if ($dbMgr->getError()) {
@@ -3450,7 +3489,7 @@ function getWordLocation($wordTag) {
         return "zzz";
       } else {
         $row = $dbMgr->fetchResultRow($dbMgr->getRowCount()-1);
-        array_push($labels,$row['linelabel']);
+        array_push($labels, $row['linelabel']);
       }
     }
   } else if ($prefix == 'tok') {
@@ -3468,12 +3507,12 @@ function getWordLocation($wordTag) {
       return "zzz";
     } else {
       $row = $dbMgr->fetchResultRow();
-      array_push($labels,$row['linelabel']);
+      array_push($labels, $row['linelabel']);
       $txtLabel = $row['txtlabel'];
       $lineord = $row['lineord'];
       if ($dbMgr->getRowCount() > 1) {
         $row = $dbMgr->fetchResultRow($dbMgr->getRowCount()-1);
-        array_push($labels,$row['linelabel']);
+        array_push($labels, $row['linelabel']);
       }
     }
   }
@@ -3485,30 +3524,30 @@ function getWordLocation($wordTag) {
     $label1 = $labels[0];
     $label2 = $labels[$cntLabels - 1];
     if ($label1 != $label2) {
-      $label2 = explode(':',$label2);
+      $label2 = explode(':', $label2);
       $label1 .= '–'.(count($label2)>1?$label2[1]:$label2[0]);
     }
     return ($txtLabel?$txtLabel.':':"").$lineord.':'.$label1;
   }
 }
 
-function compareWordLocations($locW1,$locW2) {
-  if (strpos($locW1,':') == strrpos($locW1,':')) { //single colon so no tref
-    list($ord1,$label1) = explode(':',$locW1);
+function compareWordLocations($locW1, $locW2) {
+  if (strpos($locW1, ':') == strrpos($locW1, ':')) { //single colon so no tref
+    list($ord1, $label1) = explode(':', $locW1);
     $tref1 = 0;
   } else {
-    list($tref1,$ord1,$label1) = explode(':',$locW1);
+    list($tref1, $ord1, $label1) = explode(':', $locW1);
   }
-  if (strpos($locW2,':') == strrpos($locW2,':')) { //single colon so no tref
-    list($ord2,$label2) = explode(':',$locW2);
+  if (strpos($locW2, ':') == strrpos($locW2, ':')) { //single colon so no tref
+    list($ord2, $label2) = explode(':', $locW2);
     $tref2 = 0;
   } else {
-    list($tref2,$ord2,$label2) = explode(':',$locW2);
+    list($tref2, $ord2, $label2) = explode(':', $locW2);
   }
-  if (preg_match("/^sort\d+/",$tref1) && preg_match("/^sort\d+/",$tref2)) {
+  if (preg_match("/^sort\d+/", $tref1) && preg_match("/^sort\d+/", $tref2)) {
     $tref1 = intval(substr($tref1,4));
     $tref2 = intval(substr($tref2,4));
-  } else if (preg_match("/^CK[DIMC]\d+/i",$tref1) && preg_match("/^CK[DIMC]\d+/",$tref2)) {
+  } else if (preg_match("/^CK[DIMC]\d+/i", $tref1) && preg_match("/^CK[DIMC]\d+/", $tref2)) {
     if ($tref1[2] == $tref2[2]) {//ensure the CKD CKC CKM CKI also sort
       $tref1 = intval(substr($tref1,3));//use integer part
       $tref2 = intval(substr($tref2,3));//use integer part
@@ -3534,17 +3573,17 @@ function compareWordLocations($locW1,$locW2) {
   }
 }
 
-function changeVisibility($prefix,$table,$ids,$vis,$owner) {
+function changeVisibility($prefix, $table, $ids, $vis, $owner) {
   $dbMgr = new DBManager();
   if ($table == 'usergroup') {
     return null;
   }
   $query = "update $table set $prefix"."_visibility_ids='$vis'";
-  if($ids && count($ids) >0 || $owner) {
+  if ($ids && count($ids) >0 || $owner) {
     if ($ids && $owner) {
-      $query .= " where $prefix"."_id in (".join(",",$ids).") and $prefix"."_owner_id=$owner";
+      $query .= " where $prefix"."_id in (".join(",", $ids).") and $prefix"."_owner_id=$owner";
     }else if ($ids) {
-      $query .= " where $prefix"."_id in (".join(",",$ids).")";
+      $query .= " where $prefix"."_id in (".join(",", $ids).")";
     } else if ($ids && $owner) {
       $query .= " where $prefix"."_owner_id=$owner";
     }
@@ -3556,13 +3595,13 @@ function changeVisibility($prefix,$table,$ids,$vis,$owner) {
 }
 
 
-function changeOwner($prefix,$table,$ids,$newOwner,$oldOwner) {
+function changeOwner($prefix, $table, $ids, $newOwner, $oldOwner) {
   $dbMgr = new DBManager();
   if ($table == 'usergroup') {
     return null;
   }
   $query = "update $table set $prefix"."_owner_id='$newOwner'";
-  if($oldOwner) {
+  if ($oldOwner) {
     $query .= " where $prefix"."_owner_id=$oldOwner";
   }
   $query .= ";";
@@ -3610,7 +3649,7 @@ $prefixToTableName = array(
 function createThumb($srcPath, $srcFilename, $ext, $targetPath, $thumbBaseURL, $maxSizeX = 150, $maxSizeY = 150) {
   $sourcefile = $srcPath.$srcFilename;
   $thumbfile = $targetPath.getThumbFromFilename($srcFilename);
-  list($imageW,$imageH) = getimagesize($sourcefile);
+  list($imageW, $imageH) = getimagesize($sourcefile);
   //shrink and preserve aspect
   $percent = $maxSizeX/$imageW;
   if ($percent>1) {
@@ -3622,14 +3661,14 @@ function createThumb($srcPath, $srcFilename, $ext, $targetPath, $thumbBaseURL, $
   $thumbW = round($percent*$imageW);
   $thumbH = round($percent*$imageH);
 
-  $thumbImage = imagecreatetruecolor($thumbW,$thumbH);
+  $thumbImage = imagecreatetruecolor($thumbW, $thumbH);
 
   switch($ext){
     case 'png':
       $sourceImage = imagecreatefrompng($sourcefile);
       break;
     case 'gif':
-      $sourceImage = imagecreatefromgif($sourcefile);
+      $sourceImage = imagecreatefromgif ($sourcefile);
       break;
     case 'jpg':
     case 'jpeg':
@@ -3638,18 +3677,18 @@ function createThumb($srcPath, $srcFilename, $ext, $targetPath, $thumbBaseURL, $
   }
 
   if ($sourceImage) {
-    imagecopyresampled($thumbImage,$sourceImage,0,0,0,0,$thumbW,$thumbH,$imageW,$imageH);
+    imagecopyresampled($thumbImage, $sourceImage,0,0,0,0, $thumbW, $thumbH, $imageW, $imageH);
     switch($ext){
       case 'png':
-        $ret = imagepng($thumbImage,$thumbfile,9);
+        $ret = imagepng($thumbImage, $thumbfile,9);
         break;
       case 'gif':
-        $ret = imagegif($thumbImage,$thumbfile,100);
+        $ret = imagegif ($thumbImage, $thumbfile,100);
         break;
       case 'jpg':
       case 'jpeg':
       default:
-        $ret = imagejpeg($thumbImage,$thumbfile,100);
+        $ret = imagejpeg($thumbImage, $thumbfile,100);
     }
     imagedestroy($thumbImage);
     imagedestroy($sourceImage);
@@ -3664,10 +3703,10 @@ function createThumb($srcPath, $srcFilename, $ext, $targetPath, $thumbBaseURL, $
 
 function formatEtym($lemmaEtymString) {
   $formattedEtyms = "";
-  $etyms = explode(",",$lemmaEtymString);
+  $etyms = explode(",", $lemmaEtymString);
   $isFirst = true;
   foreach ($etyms as $etym) {
-    preg_match("/\s*(Skt|Pkt|Vedic|P|BHS|G|S)\.?\:?\s*(.+)/",$etym,$matches);
+    preg_match("/\s*(Skt|Pkt|Vedic|P|BHS|G|S)\.?\:?\s*(.+)/", $etym, $matches);
     if (!$isFirst) {
       $formattedEtyms .= ", ";
     } else {
@@ -3726,7 +3765,7 @@ function logAddMsgExit($msg, $wrapHeader = true, $jsonEncode = false) {
   exit();
 }
 
-function logAddLink($msg,$url) {
+function logAddLink($msg, $url) {
   global $logHTML;
   $logHTML .= "<div class=\"loglink\"><a href=\"$url\" target=\"_blank\">$msg</a></div>\n";
 }

@@ -336,6 +336,23 @@ div.declUI .valueLabelDiv, div.linkTypeUI .valueLabelDiv{
   width: 100%;
   background-color: inherit;
 }
+.phonology .valueInputDiv{
+  display: block;
+  min-width: 50px;
+  background-color: inherit;
+  margin-top: 7px;
+}
+.phonology .valueInputDiv.lemmaphono{
+  margin-top: 0px;
+}
+.phonology .valueInput{
+  min-width: 50px;
+  width: auto;
+  height:20px;
+  font-size: small;
+  background-color: white;
+  border: black solid 1px;
+}
 .valueInput{
   width: 100%;
   height:40px;
@@ -715,3 +732,56 @@ img.thumb100 {
 .propertyVEContainer {
   font-family: "Segoe UI", "Noto Sans", "DejaVu Sans", sans-serif, "Gandhari Unicode"!important;
 }
+.commitButton {
+  display: none;
+}
+.phonology .validateButton,
+.phonology  .genButton {
+  display: inline-block;
+}
+.phonology.valid .validateButton {
+  display: none;
+}
+.phonology.valid .commitButton {
+    display: inline-block;
+}
+.phonology .validateButton, .phonology .commitButton,
+.phonology .genButton {
+  background-color: rgb(217,217,217);
+  width: 70px;
+  height: 23px;
+  border: 1px solid darkgrey;
+  cursor: pointer;
+  vertical-align: top;
+}
+.lemmaphonoDisplay,
+.etymphonoDisplay {
+  display:inline;
+  background-color: inherit!important;
+  width: auto;
+  min-width: 150px;
+  margin-right: 20px;
+}
+div.lemmaphono.editing .lemmaphonoDisplay,
+div.etymphono.editing .etymphonoDisplay {
+    display:none;
+}
+div.lemmaphono .valueInput,
+div.etymphono .valueInput {
+  display:none;
+}
+div.lemmaphono.editing .valueInput,
+div.etymphono.editing .valueInput {
+  display:inline;
+}
+.phonoCompare {
+  display:inline;
+  background-color: inherit!important;
+}
+.phPart {
+  background-color: inherit!important;
+}
+.phPart.misMatch {
+  font-weight: bold;
+}
+

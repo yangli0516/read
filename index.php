@@ -1,42 +1,42 @@
 <?php
 /**
-* This file is part of the Research Environment for Ancient Documents (READ). For information on the authors
-* and copyright holders of READ, please refer to the file AUTHORS in this distribution or
-* at <https://github.com/readsoftware>.
-*
-* READ is free software: you can redistribute it and/or modify it under the terms of the
-* GNU General Public License as published by the Free Software Foundation, either version 3 of the License,
-* or (at your option) any later version.
-*
-* READ is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License along with READ.
-* If not, see <http://www.gnu.org/licenses/>.
-*/
+ * This file is part of the Research Environment for Ancient Documents (READ). For information on the authors
+ * and copyright holders of READ, please refer to the file AUTHORS in this distribution or
+ * at <https://github.com/readsoftware>.
+ *
+ * READ is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation, either version 3 of the License,
+ * or (at your option) any later version.
+ *
+ * READ is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with READ.
+ * If not, see <http://www.gnu.org/licenses/>.
+ */
 /**
-* @author      Stephen White  <stephenawhite57@gmail.com>
-* @copyright   @see AUTHORS in repository root <https://github.com/readsoftware/read>
-* @link        https://github.com/readsoftware
-* @version     1.0
-* @license     @see COPYING in repository root or <http://www.gnu.org/licenses/>
-* @package     READ Research Environment for Ancient Documents
-*/
+ * @author    Stephen White  <stephenawhite57@gmail.com>
+ * @copyright @see AUTHORS in repository root <https://github.com/readsoftware/read>
+ * @link      https://github.com/readsoftware
+ * @version   1.0
+ * @license   @see COPYING in repository root or <http://www.gnu.org/licenses/>
+ * @package   READ Research Environment for Ancient Documents
+ */
 
 /**
-* userUI
-*
-* creates a framework for the user interface including a layout manager and data manager
-* it support opening with a parameter set that defines the layout and data needed to reproduce
-* the exact view currently shown (perhaps minus any selection).
-* when no parameters are passed it creates the default layout with no data and a single empty view.
-*/
+ * userUI
+ *
+ * creates a framework for the user interface including a layout manager and data manager
+ * it support opening with a parameter set that defines the layout and data needed to reproduce
+ * the exact view currently shown (perhaps minus any selection).
+ * when no parameters are passed it creates the default layout with no data and a single empty view.
+ */
 
-  require_once (dirname(__FILE__) . '/common/php/sessionStartUp.php');//initialize the session
-  require_once (dirname(__FILE__) . '/common/php/DBManager.php');//get database interface
-  require_once (dirname(__FILE__) . '/common/php/userAccess.php');//get user access control
-  require_once (dirname(__FILE__) . '/model/entities/EntityFactory.php');//get user access control
+  require_once dirname(__FILE__) . '/common/php/sessionStartUp.php';//initialize the session
+  require_once dirname(__FILE__) . '/common/php/DBManager.php';//get database interface
+  require_once dirname(__FILE__) . '/common/php/userAccess.php';//get user access control
+  require_once dirname(__FILE__) . '/model/entities/EntityFactory.php';//get user access control
   $dbMgr = new DBManager();
 ?>
 <!DOCTYPE html>
@@ -46,7 +46,7 @@
     <meta http-equiv="Cache-Control" content="no-cache">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta http-equiv="Lang" content="en">
-    <title><?=defined("PROJECT_TITLE")?PROJECT_TITLE:"Set PROJECT_TITLE in config.php"?></title>
+    <title><?php echo defined("PROJECT_TITLE")?PROJECT_TITLE:"Set PROJECT_TITLE in config.php"?></title>
     <link rel="stylesheet" href="/jqwidget/jqwidgets/styles/jqx.base.css" type="text/css" />
     <link rel="stylesheet" href="/jqwidget/jqwidgets/styles/jqx.energyblue.css" type="text/css" />
     <link rel="stylesheet" href="./common/css/kanishka.css" type="text/css" />
@@ -86,23 +86,29 @@
     <script src="/jqwidget/jqwidgets/jqxvalidator.js"></script>
     <script src="/jqwidget/jqwidgets/jqxpanel.js"></script>
     <script src="/jqwidget/jqwidgets/jqxtree.js"></script>
-    <script type="text/javascript" src="./common/php/getEntityInfo.php?db=<?=DBNAME?>"></script>
-    <script type="text/javascript" src="./services/getTagInfo.php?db=<?=DBNAME?>"></script>
+    <script type="text/javascript" src="./common/php/getEntityInfo.php?db=<?php echo DBNAME?>"></script>
+    <script type="text/javascript" src="./services/getTagInfo.php?db=<?php echo DBNAME?>"></script>
     <script type="text/javascript">
 
-      var sktSort = ('<?=defined("USESKTSORT")?USESKTSORT:"0"?>' == "0" || !'<?=defined("USESKTSORT")?USESKTSORT:"0"?>')?false:true,
-          enableCatalogResources = ('<?=defined("ENABLECATALOGRESOURCE")?ENABLECATALOGRESOURCE:"0"?>' == "0" || !'<?=ENABLECATALOGRESOURCE?>')?false:true,
-          maxUploadSize = parseInt(<?=defined("MAX_UPLOAD_SIZE")?MAX_UPLOAD_SIZE:7000000?>),
-          linkToSyllablePattern = '<?=defined("LINKSYLPATTERN")?LINKSYLPATTERN:""?>',
+      var sktSort = ('<?php echo defined("USESKTSORT")?USESKTSORT:"0"?>' == "0" || 
+                    !'<?php echo defined("USESKTSORT")?USESKTSORT:"0"?>')?false:true,
+          enableCatalogResources = ('<?php echo defined("ENABLECATALOGRESOURCE")?ENABLECATALOGRESOURCE:"0"?>' == "0" || 
+                                   !'<?php echo ENABLECATALOGRESOURCE?>')?false:true,
+          maxUploadSize = parseInt(<?php echo defined("MAX_UPLOAD_SIZE")?MAX_UPLOAD_SIZE:7000000?>),
+          linkToSyllablePattern = '<?php echo defined("LINKSYLPATTERN")?LINKSYLPATTERN:""?>',
           progressInputName='<?php echo ini_get("session.upload_progress.name"); ?>',
-          dbName = '<?=DBNAME?>', basepath="<?=SITE_BASE_PATH?>",
+          dbName = '<?php echo DBNAME?>', basepath="<?php echo SITE_BASE_PATH?>",
           EDITORS = EDITORS || {};
         if (!EDITORS.config){
           EDITORS.config = {};
         }
-        EDITORS.config.showLemmaVEPhoneticUI = ('<?=defined("SHOWLEMMAPHONETIC")?SHOWLEMMAPHONETIC:"0"?>' == "0" || !'<?=defined("SHOWLEMMAPHONETIC")?SHOWLEMMAPHONETIC:"0"?>')?false:true;
-        EDITORS.config.showLemmaDeclensionUI = ('<?=defined("SHOWLEMMADECLENSION")?SHOWLEMMADECLENSION:"0"?>' == "0" || !'<?=defined("SHOWLEMMADECLENSION")?SHOWLEMMADECLENSION:"0"?>')?false:true;
-        EDITORS.config.declensionListName = '<?=defined("DECLENSIONLIST")?DECLENSIONLIST:"OIADeclension"?>';
+        EDITORS.config.showLemmaVEPhoneticUI = ('<?php echo defined("SHOWLEMMAPHONETIC")?SHOWLEMMAPHONETIC:"0"?>' == "0" || 
+                                               !'<?php echo defined("SHOWLEMMAPHONETIC")?SHOWLEMMAPHONETIC:"0"?>')?false:true;
+        EDITORS.config.showLemmaVEPhonologicalUI = ('<?php echo defined("SHOWLEMMAPHONOLOGY")?SHOWLEMMAPHONOLOGY:""?>' == "" || 
+                                                   !'<?php echo defined("SHOWLEMMAPHONOLOGY")?SHOWLEMMAPHONOLOGY:""?>')?false:'<?php echo SHOWLEMMAPHONOLOGY?>';
+        EDITORS.config.showLemmaDeclensionUI = ('<?php echo defined("SHOWLEMMADECLENSION")?SHOWLEMMADECLENSION:"0"?>' == "0" || 
+                                               !'<?php echo defined("SHOWLEMMADECLENSION")?SHOWLEMMADECLENSION:"0"?>')?false:true;
+        EDITORS.config.declensionListName = '<?php echo defined("DECLENSIONLIST")?DECLENSIONLIST:"OIADeclension"?>';
     </script>
     <script src="./editors/js/utility.js"></script>
     <script src="./editors/js/debug.js"></script>
@@ -163,12 +169,12 @@
                                                  basepath: basepath,
                                                  entityInfo: entityInfo,
                                                  termInfo: termInfo,
-                                                 username: "<?= @$username?$username:"unknown"?>" });
+                                                 username: "<?php echo @$username?$username:"unknown"?>" });
         layoutManager = new MANAGERS.LayoutManager({ navPanel: navPanelDiv,
                                                      contentDiv: contDiv,
                                                      dataMgr: dataManager,
-                                                     projTitle: "<?=defined("PROJECT_TITLE")?PROJECT_TITLE:"Set PROJECT_TITLE in config.php"?>",
-                                                     username: "<?= @$username?$username:"unknown"?>" });
+                                                     projTitle: "<?php echo defined("PROJECT_TITLE")?PROJECT_TITLE:"Set PROJECT_TITLE in config.php"?>",
+                                                     username: "<?php echo @$username?$username:"unknown"?>" });
       });
     </script>
   </head>
