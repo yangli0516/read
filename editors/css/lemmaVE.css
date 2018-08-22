@@ -778,6 +778,11 @@ div.etymphono.editing .valueInput {
   display:inline;
   background-color: inherit!important;
 }
+.phonoPartsCount {
+  background-color: inherit!important;
+  padding-left: 10px;
+  font-weight: bolder;
+}
 .phPart {
   background-color: inherit!important;
 }

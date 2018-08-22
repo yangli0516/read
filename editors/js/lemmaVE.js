@@ -455,8 +455,8 @@ EDITORS.LemmaVE.prototype = {
         }
       }
     }
-    lemmaPhonoHtml += '</div>';
-    etymPhonoHtml += '</div>';
+    lemmaPhonoHtml += '<span class="phonoPartsCount">('+lemmaParts.length+')</span></div>';
+    etymPhonoHtml += '<span class="phonoPartsCount">('+etymParts.length+')</span></div>';
     return [etymPhonoHtml, lemmaPhonoHtml];
   },
 
@@ -470,8 +470,10 @@ EDITORS.LemmaVE.prototype = {
         glossParts, etymParts, etymIndex,
         etymPhono = (lemma.phonology ? lemma.phonology[0] :
                     (lemma.wipPhonology ? lemma.wipPhonology[0] : '')),
+        ePhonoCnt = "",
         lemmaPhono = (lemma.phonology ? lemma.phonology[1] :
                      (lemma.wipPhonology ? lemma.wipPhonology[1] : '')),
+        lPhonoCnt = "",
         labelValue = (lemma.phonology? lemma.phonology[0] + ' → '+ lemma.phonology[1]:
                        "Phonological Analysis");
     DEBUG.traceEntry("createPhonologicalUI");
@@ -493,6 +495,10 @@ EDITORS.LemmaVE.prototype = {
         etymPhono = this.getPhonologyString(etymPhono);
       }
     }
+    if (!lemma.phonology) {
+      ePhonoCnt = " (" + etymPhono.split('-').length + ")";
+      lPhonoCnt = " (" + lemmaPhono.split('-').length + ")";
+    }
     //create UI container
     this.phonoUI = $('<div class="phonoUI"></div>');
     this.editDiv.append(this.phonoUI);
@@ -504,13 +510,13 @@ EDITORS.LemmaVE.prototype = {
     this.phonoUI.append($(
       '<div class="propEditUI phonology">' +
         '<div class="valueInputDiv propEditElement etymphono">'+
-          '<span class="etymphonoDisplay">' + etymPhono + '</span>' +
+          '<span class="etymphonoDisplay">' + etymPhono + ePhonoCnt + '</span>' +
           '<input class="valueInput" value="' + etymPhono + '"/>' +
           '<span><button class="genButton">Generate</button><button class="validateButton">Validate</button>' +
           '<button class="commitButton">Commit</button></span>'+
         '</div>' +
         '<div class="valueInputDiv propEditElement lemmaphono">'+
-          '<span class="lemmaphonoDisplay">' + lemmaPhono + '</span>' +
+          '<span class="lemmaphonoDisplay">' + lemmaPhono + lPhonoCnt + '</span>' +
           '<input class="valueInput" value="' + lemmaPhono + '"/>' +
         '</div>' +
       '</div>'
@@ -604,7 +610,9 @@ EDITORS.LemmaVE.prototype = {
       $etymphonoDisplay.parent().removeClass("editing");
       $lemmaphonoDisplay.parent().removeClass("editing");
       $phonoDisplay.html('Phonological Analysis')
-      $lemmaphonoInput.parent().parent().addClass("valid");
+      if (etymPhono.split('-').length == lemmaPhono.split('-').length){
+        $lemmaphonoInput.parent().parent().addClass("valid");
+      }
       e.stopImmediatePropagation();
       return false;
     });
@@ -624,24 +632,22 @@ EDITORS.LemmaVE.prototype = {
         var lemProp = {};
         if (lemma.phonology) {
           delete lemma.phonology;
-          lemProp["phonology"] = '';
         }
         if (lemma.wipPhonology) {
           delete lemma.wipPhonology;
-          lemProp["wipPhonology"] = '';
         }
         //update server model
-        if (Object.keys(lemProp).length) {
-          lemmaVE.saveLemma(lemProp);
-        }
+        lemProp["wipPhonology"] = '';
+        lemProp["phonology"] = '';
+        lemmaVE.saveLemma(lemProp);
         etymPhono = phonology[0];
         lemmaPhono = phonology[1];
         $lemmaphonoInput.parent().parent().removeClass("valid");
         $lemmaphonoDisplay.parent().removeClass("editing");
         $etymphonoDisplay.parent().removeClass("editing");
         $phonoDisplay.html('Phonological Analysis')
-        $lemmaphonoDisplay.html(lemmaPhono);
-        $etymphonoDisplay.html(etymPhono);
+        $lemmaphonoDisplay.html(lemmaPhono + " ("+lemmaPhono.split('-').length + ")");
+        $etymphonoDisplay.html(etymPhono + " ("+etymPhono.split('-').length + ")");
       } else {
         alert('unable to generate phonology, please check console for more information on error')
       }
@@ -659,7 +665,9 @@ EDITORS.LemmaVE.prototype = {
           if ($lemmaphonoInput.parent().parent().hasClass("valid")) {
             $lemmaphonoInput.parent().parent().removeClass("valid");
           }
-          $lemmaphonoDisplay.html($lemmaphonoInput.val());
+          curInput = $lemmaphonoInput.val();
+          curInput = curInput + " (" + curInput.split("-").length + ")";
+          $lemmaphonoDisplay.html(curInput);
         }
         //stop editing the user pressed enter
         $lemmaphonoDisplay.parent().removeClass("editing");
@@ -682,7 +690,9 @@ EDITORS.LemmaVE.prototype = {
           if ($etymphonoInput.parent().parent().hasClass("valid")) {
             $etymphonoInput.parent().parent().removeClass("valid");
           }
-          $etymphonoDisplay.html($etymphonoInput.val());
+          curInput = $etymphonoInput.val();
+          curInput = curInput + " (" + curInput.split("-").length + ")";
+          $etymphonoDisplay.html(curInput);
         }
         //stop editing the user pressed enter
         $etymphonoDisplay.parent().removeClass("editing");
@@ -3056,7 +3066,8 @@ EDITORS.LemmaVE.prototype = {
               if (lemmaVE.wordlistVE) {
                 lemmaVE.wordlistVE.updateLemmaEntry(oldLemID);
               }
-              if (!savedata.lemProps['wipPhonology']) {
+              if (Object.keys(savedata.lemProps).indexOf('phonology') == -1 ||
+                  savedata.lemProps['phonology']) {
                 lemmaVE.showLemma('lem', oldLemID);
               }
               break;
