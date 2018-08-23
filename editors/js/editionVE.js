@@ -6678,14 +6678,11 @@ EDITORS.EditionVE.prototype = {
                   graTemp = grapheme.value;
                   graTemp = graTemp[0].toUpperCase() + (graTemp.length > 1 ? graTemp.substring(1) : "");
                   grpHTML += graTemp;
-<<<<<<< HEAD
-                } else if (prevGraIsVowelCarrier && previousA &&
-                          (previousGraTCMS == grapheme.txtcrit ||
-                           (!previousGraTCMS|| previousGraTCMS == "S") &&
-                           (!grapheme.txtcrit|| grapheme.txtcrit == "S"))) {
-=======
+//                } else if (prevGraIsVowelCarrier && previousA &&
+//                          (previousGraTCMS == grapheme.txtcrit ||
+//                           (!previousGraTCMS|| previousGraTCMS == "S") &&
+//                           (!grapheme.txtcrit|| grapheme.txtcrit == "S"))) {
                 } else if (j == 1 && prevGraIsVowelCarrier && previousA && previousGraTCMS == grapheme.txtcrit) {
->>>>>>> 8d5943a... Phonological UI
                   if (grapheme.value == 'i') {
                     grpHTML += "ï";
                   } else if (grapheme.value == 'u') {
@@ -6948,31 +6945,6 @@ EDITORS.EditionVE.prototype = {
 
   renumberLines: function () {
     var ednVE = this,
-<<<<<<< HEAD
-        hdrNodes = $(".textDivHeader",ednVE.contentDiv),
-        endHeaderIndex = hdrNodes.length - 1, grpOrd = 1;
-    hdrNodes.each(function(hindex,elem){
-            //renumber line ordinals
-            var newLineOrd = " ordL"+(1+hindex);
-            elem.className = elem.className.replace(/ordL\d+/,'')
-                                            .replace(/startHeader/,"")
-                                            .replace(/endHeader/,"") +
-                                            newLineOrd +
-                                            (hindex==0?' startHeader':
-                                             (hindex == endHeaderIndex?" endHeader":""));
-            $(elem).nextUntil("br").
-                each(function(index,elem){
-                  elem.className = elem.className.replace(/ordL\d+/,'')
-                                                  .replace(/ord\d+/,"ord"+(grpOrd++))
-                                                  .replace(/prepadding/,"")
-                                                  .replace(/firstLine/,"")
-                                                  .replace(/lastLine/,"") +
-                                                  newLineOrd +
-                                                  (hindex==0?' firstLine':
-                                                   (hindex == endHeaderIndex?" lastLine":""));
-                });
-        });
-=======
       hdrNodes = $(".textDivHeader", ednVE.contentDiv),
       endHeaderIndex = hdrNodes.length - 1,
       grpOrd = 1;
@@ -6996,7 +6968,6 @@ EDITORS.EditionVE.prototype = {
             (hindex == endHeaderIndex ? " lastLine" : ""));
       });
     });
->>>>>>> 8d5943a... Phonological UI
   },
 
   /**
