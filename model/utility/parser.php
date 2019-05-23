@@ -440,7 +440,7 @@ class Parser {
       }else{
         $lines = $this->_configs;
       }
-      if (!@$lines) {
+      if (!(isset($lines) && $lines)) {
         array_push($this->_errors,"no line information to parse");
         return false;
       }
@@ -457,7 +457,7 @@ class Parser {
         if (array_key_exists("transliteration",$lnCfg)) {
           $cnt = mb_strlen($lnCfg["transliteration"]);
         }
-        if (!@$cnt) {
+        if (!(isset($cnt) && $cnt)) {
           array_push($this->_errors,"no line information to parse for row ".array_key_exists("AzesTRID",$lnCfg)?$lnCfg["AzesTRID"]:'with unknown id');
           continue;
         }else{
@@ -485,7 +485,7 @@ class Parser {
             $curTokLineSequence->storeScratchProperty($key,$value);
           }
         }
-        if (@$attr){
+        if (isset($attr) && $attr) {
           $curTokLineSequence->setAttributionIDs($attr);
         }
         array_push($this->_sequences,$curTokLineSequence);
@@ -502,7 +502,7 @@ class Parser {
             $curPhysLineSequence->storeScratchProperty($key,$value);
           }
         }
-        if (@$attr){
+        if (isset($attr) && $attr) {
           $curPhysLineSequence->setAttributionIDs($attr);
         }
         array_push($this->_sequences,$curPhysLineSequence);
@@ -526,7 +526,7 @@ class Parser {
               $txtEdTokSequence->storeScratchProperty($key,$value);
             }
           }
-          if (@$attr){
+          if (isset($attr) && $attr) {
             $txtEdTokSequence->setAttributionIDs($attr);
           }
           array_push($this->_sequences,$txtEdTokSequence);
@@ -546,7 +546,7 @@ class Parser {
               $txtEdPhysSequence->storeScratchProperty($key,$value);
             }
           }
-          if (@$attr){
+          if (isset($attr) && $attr) {
             $txtEdPhysSequence->setAttributionIDs($attr);
           }
           array_push($this->_sequences,$txtEdPhysSequence);
@@ -564,7 +564,7 @@ class Parser {
               $curStructDivSequence->storeScratchProperty($key,$value);
             }
           }
-          if (@$attr){
+          if (isset($attr) && $attr) {
             $curStructDivSequence->setAttributionIDs($attr);
           }
           array_push($this->_sequences,$curStructDivSequence);
@@ -584,7 +584,7 @@ class Parser {
               $analysisSequence->storeScratchProperty($key,$value);
             }
           }
-          if (@$attr){
+          if (isset($attr) && $attr) {
             $analysisSequence->setAttributionIDs($attr);
           }
           array_push($this->_sequences,$analysisSequence);
@@ -605,10 +605,10 @@ class Parser {
               $curEdition->storeScratchProperty($key,$value);
             }
           }
-          if (@$txtid){
+          if (isset($txtid) && $txtid) {
             $curEdition->setTextID($txtid);
           }
-          if (@$attr){
+          if (isset($attr) && $attr) {
             $curEdition->setAttributionIDs($attr);
           }
           array_push($this->_editions,$curEdition);
@@ -629,7 +629,7 @@ class Parser {
         $curBaseline->setVisibilityIDs($vis);
         $curBaseline->setType($this->_termLookups['transcription-baselinetype']);// warning!!! term dependency
         $curBaseline->setOwnerID($ownerID);
-        if (@$attr){
+        if (isset($attr) && $attr) {
           $curBaseline->setAttributionIDs($attr);
         }
         foreach ( $lnCfg["Baseline"]["scratch"] as $key => $value) {
@@ -641,7 +641,7 @@ class Parser {
         $this->_baselines[$blnIndex-1]->storeScratchProperty("nonce","bln_".$blnTempID.$parseGUID);
         $curSpan = new Span();
         $curSpan->setVisibilityIDs($vis);
-        if (@$attr){
+        if (isset($attr) && $attr) {
           $curSpan->setAttributionIDs($attr);
         }
         $curSpan->setOwnerID($ownerID);
@@ -651,11 +651,11 @@ class Parser {
         $this->_spans[$spnIndex-1]->storeScratchProperty("nonce","spn_".$spnTempID.$parseGUID);
         $curLine = new Line();
         $curLine->setVisibilityIDs($vis);
-        if (@$attr){
+        if (isset($attr) && $attr) {
           $curLine->setAttributionIDs($attr);
         }
         $curLine->setOwnerID($ownerID);
-        if (@$spnTempID){
+        if (isset($spnTempID) && $spnTempID) {
           $curLine->setSpanIDs(array($spnTempID));
         }
         $lineMask = "XX";
@@ -680,7 +680,7 @@ class Parser {
         if (array_key_exists("Run",$lnCfg)) {
           $curRun = new Run();
           $curRun->setVisibilityIDs($vis);
-          if (@$attr){
+          if (isset($attr) && $attr) {
             $curRun->setAttributionIDs($attr);
           }
           $curRun->setOwnerID($ownerID);
@@ -722,7 +722,7 @@ class Parser {
 /*            case "<"://quote
               //check if quote start <b>
               if (mb_substr($script,$i,3) == '<b>'){
-                if (@$inQuote) {
+                if (isset($inQuote) && $inQuote) {
                   array_push($this->_errors,"start quote found nested in quote !!ignoring!!, located at character $i of line ".$curLine->getOrder()." cfg line # $cfgLnCnt");
                 } else { //setup quote sequence
                   $inQuote = true;
@@ -737,7 +737,7 @@ class Parser {
                   $curQuoteSequence->setOwnerID($ownerID);
                   $curQuoteSequence->setLabel("quote in $ckn");
                   $curQuoteSequence->setTypeID($this->_rootrefID);
-                  if (@$attr){
+                  if (isset($attr) && $attr) {
                     $curQuoteSequence->setAttributionIDs($attr);
                   }
                   array_push($this->_sequences,$curQuoteSequence);
@@ -745,19 +745,19 @@ class Parser {
                   $quoteSeqTempID = 0 - $curQuoteSeqIndex;
                   $curQuoteSequence->storeScratchProperty("nonce","seq_".$quoteSeqTempID.$parseGUID);
                   $curQuoteSequence->storeScratchProperty("cknLine",$ckn.".$lineMask");
-                  if(!@$txtRefSequence) { //start a new txtRefContainer sequence to capture tokenized quoteSeq
+                  if (!(isset($txtRefSequence) && $txtRefSequence)) { //start a new txtRefContainer sequence to capture tokenized quoteSeq
                     $txtRefSequence = new Sequence();
                     $txtRefSequence->setVisibilityIDs($vis);
                     $txtRefSequence->setOwnerID($ownerID);
                     $txtRefSequence->setEntityIDs(array("seq:".$quoteSeqTempID));
                     $txtRefSequence->setLabel("text Reference Container for $ckn");
                     $txtRefSequence->setTypeID($this->_textreferenceID);
-                    if(array_key_exists("Sequence",$lnCfg) && array_key_exists("scratch",$lnCfg["Sequence"])) {
+                    if (array_key_exists("Sequence",$lnCfg) && array_key_exists("scratch",$lnCfg["Sequence"])) {
                       foreach ( $lnCfg["Sequence"]["scratch"] as $key => $value) {
                         $txtRefSequence->storeScratchProperty($key,$value);
                       }
                     }
-                    if (@$attr){
+                    if (isset($attr) && $attr) {
                       $txtRefSequence->setAttributionIDs($attr);
                     }
                     array_push($this->_sequences,$txtRefSequence);
@@ -811,7 +811,7 @@ class Parser {
             case "«"://author heading
               //read tag until end marker "»"
               $heading = mb_strstr(mb_substr($script,$i+1),"»",true);
-              if (!@$heading) {// todo - consider empty as close of previous structure for flow around
+              if (!(isset($heading) && $heading)) {// todo - consider empty as close of previous structure for flow around
                 array_push($this->_errors,"heading indicator has empty label, at character $i of line ".$curLine->getOrder()." cfg line # $cfgLnCnt");
               }else{//start the structural division sequence
                 // default point to analysis as parent sequence for structure
@@ -853,7 +853,7 @@ class Parser {
                       $curStructDivSequence->storeScratchProperty($key,$value);
                     }
                   }
-                  if (@$attr){
+                  if (isset($attr) && $attr) {
                     $curStructDivSequence->setAttributionIDs($attr);
                   }
                   array_push($this->_sequences,$curStructDivSequence);
@@ -878,7 +878,7 @@ class Parser {
               break;
             case "~"://vowel sharing token split tag
               //read tag until ~,
-              if (!@$graIndex) {
+              if (!(isset($graIndex) && $graIndex)) {
                 array_push($this->_errors,"no grapheme before replacement sequence at character $i of $ckn.$lineMask"." cfg line # $cfgLnCnt");
                 break;
               }
@@ -890,7 +890,7 @@ class Parser {
               $matchGrapheme = mb_substr($replaceCmd,0,$posSep);
               $replacementString = mb_substr($replaceCmd,$posSep+1);
               error_log("matchGrapheme = $matchGrapheme and replacementString = '$replacementString'");
-              if (@$matchGrapheme != $prevGrapheme) {//check marker is the same as previous grapheme
+              if (isset($matchGrapheme) && $matchGrapheme != $prevGrapheme) {//check marker is the same as previous grapheme
                 array_push($this->_errors,"replacement sequence at character $i of $ckn.$lineMask has marker grapheme $matchGrapheme that doesn't match previous grapheme $prevGrapheme"." cfg line # $cfgLnCnt");
               }
               //parse grapheme decomposition
@@ -915,8 +915,8 @@ class Parser {
               $tokValue = mb_substr($tokValue,0,$posGra).$leftStr.mb_substr($tokValue,$posGra+1);
               $curToken->setToken($tokValue);
               //handle entities
-              if (@$isCompSep && !@$cmpIndex){//must be first separator so create compound
-                if(!@$tokIndex || !@$tokTempID) {
+              if (isset($isCompSep) && $isCompSep && !(isset($cmpIndex) && $cmpIndex)){//must be first separator so create compound
+                if(!(isset($tokIndex) && $tokIndex) || !(isset($tokTempID) && $tokTempID)) {
                   array_push($this->_errors,"sandhi replacement at character $i of $ckn.$lineMask with invalid token ids"." cfg line # $cfgLnCnt");
                 }
                 $curCompound = new Compound();
@@ -928,7 +928,7 @@ class Parser {
                     $curCompound->storeScratchProperty($key,$value);
                   }
                 }
-                if (@$attr){
+                if (isset($attr) && $attr) {
                   $curCompound->setAttributionIDs($attr);
                 }
                 array_push($this->_compounds,$curCompound);
@@ -936,7 +936,7 @@ class Parser {
                 $cmpTempID = 0 - $cmpIndex;
                 $this->_compounds[$cmpIndex-1]->storeScratchProperty("nonce","cmp_".$cmpTempID.$parseGUID);
                 $this->_compounds[$cmpIndex-1]->storeScratchProperty("cknLine",$ckn.".$lineMask");
-                if (@$curStructDivSeqIndex) { //there is a structural division sequence entity so fix up compound token by removing the previous token id (1st of compound) and add compound id
+                if (isset($curStructDivSeqIndex) && $curStructDivSeqIndex) { //there is a structural division sequence entity so fix up compound token by removing the previous token id (1st of compound) and add compound id
                   $entityIDs = $this->_sequences[$curStructDivSeqIndex-1]->getEntityIDs();
                   $lastentityGID = array_pop($entityIDs);
                   if ($lastentityGID == "tok:$tokTempID"){//when can replace the token with compound globalID
@@ -946,7 +946,7 @@ class Parser {
                     array_push($this->_errors,"division sequence - sandhi marker (line $lineMask character $i) last entity $lastentityGID does not match tok:$tokTempID"." cfg line # $cfgLnCnt");
                   }
                 }
-                if (@$curQuoteSeqIndex) { //there is a quote (root ref) seq so fix up compound token by removing the previous token id (1st of compound) and add compound id
+                if (isset($curQuoteSeqIndex) && $curQuoteSeqIndex) { //there is a quote (root ref) seq so fix up compound token by removing the previous token id (1st of compound) and add compound id
                   $entityIDs = $curQuoteSequence->getEntityIDs();
                   $lastentityGID = array_pop($entityIDs);
                   if ($lastentityGID == "tok:$tokTempID"){//when can replace the token with compound globalID
@@ -956,7 +956,7 @@ class Parser {
                     array_push($this->_errors,"line sequence - sandhi marker (line $lineMask character $i) last entity $lastentityGID does not match tok:$tokTempID"." cfg line # $cfgLnCnt");
                   }
                 }
-                if (@$tokLineSeqIndex) { //there is a tokenised line seq so fix up compound token by removing the previous token id (1st of compound) and add compound id
+                if (isset($tokLineSeqIndex) && $tokLineSeqIndex) { //there is a tokenised line seq so fix up compound token by removing the previous token id (1st of compound) and add compound id
                   $entityIDs = $curTokLineSequence->getEntityIDs();
                   if (!$entityIDs && $prevTokLineSequence) {// at the start of a line must be token wrap
                     $entityIDs = $prevTokLineSequence->getEntityIDs();
@@ -988,7 +988,7 @@ class Parser {
                   $curToken->storeScratchProperty($key,$value);
                 }
               }
-              if (@$attr){
+              if (isset($attr) && $attr) {
                 $curToken->setAttributionIDs($attr);
               }
               array_push($this->_tokens,$curToken);
@@ -997,35 +997,36 @@ class Parser {
               $this->_tokens[$tokIndex-1]->storeScratchProperty("nonce","tok_".$tokTempID.$parseGUID);
               $this->_tokens[$tokIndex-1]->storeScratchProperty("cknLine",$ckn.".$lineMask");
               //if compound update with new token
-              if (@$cmpIndex && $isCompSep){
+              if (isset($cmpIndex) && $cmpIndex && $isCompSep) {
                 $components = $this->_compounds[$cmpIndex-1]->getComponentIDs();
                 array_push($components,"tok:".$tokTempID);
                 $this->_compounds[$cmpIndex-1]->setComponentIDs($components);
-              }else if (@$tokLineSeqIndex || @$curStructDivSeqIndex || $curQuoteSeqIndex) { //there is a division marker and not in compound so add token to sequence
-                if (@$curStructDivSeqIndex) {
+              } else if (isset($tokLineSeqIndex) && $tokLineSeqIndex || 
+                        isset($curStructDivSeqIndex) && $curStructDivSeqIndex || $curQuoteSeqIndex) { //there is a division marker and not in compound so add token to sequence
+                if (isset($curStructDivSeqIndex) && $curStructDivSeqIndex) {
                   $entityIDs = $this->_sequences[$curStructDivSeqIndex-1]->getEntityIDs();
                   array_push($entityIDs,"tok:".$tokTempID);
                   $this->_sequences[$curStructDivSeqIndex-1]->setEntityIDs($entityIDs);
                 }
-                if (@$curQuoteSeqIndex) {
+                if (isset($curQuoteSeqIndex) && $curQuoteSeqIndex) {
                   $entityIDs = $curQuoteSequence->getEntityIDs();
                   array_push($entityIDs,"tok:".$tokTempID);
                   $curQuoteSequence->setEntityIDs($entityIDs);
                 }
-                if (@$tokLineSeqIndex) {
+                if (isset($tokLineSeqIndex) && $tokLineSeqIndex) {
                   $entityIDs = $curTokLineSequence->getEntityIDs();
                   array_push($entityIDs,"tok:".$tokTempID);
                   $curTokLineSequence->setEntityIDs($entityIDs);
                 }
               }
-              if (@$cmpIndex && !$isCompSep){
+              if (isset($cmpIndex) && $cmpIndex && !$isCompSep) {
                 $cmpIndex = null;
               }
               //adjust strng count
               $i += mb_strlen($replaceCmd) + 2;
               break;
             case "!"://subfragment transition
-              if (@$subfrag) {
+              if (isset($subfrag) && $subfrag) {
                 array_push($this->_errors,"subfragment transition marker $subfrag not saved, overwritten by marker at character $i"." cfg line # $cfgLnCnt");
               }
               //read tag until ! attach to grapheme
@@ -1038,12 +1039,12 @@ class Parser {
               $atBOL = ($i==0);
               $i += mb_strlen($footnote) + 2;
               $footnote = $ckn.$footnote;
-              if (@$sclIndex) {// placed it on the previous syllable
+              if (isset($sclIndex) && $sclIndex) {// placed it on the previous syllable
                 $this->_syllableClusters[$sclIndex-1]->storeScratchProperty('footnote',$footnote);
-              }else if ($atBOL && @$physLineSeqIndex) {// placed it on the physicalLine sequence
+              }else if ($atBOL && isset($physLineSeqIndex) && $physLineSeqIndex) {// placed it on the physicalLine sequence
                 $this->_sequences[$physLineSeqIndex-1]->storeScratchProperty('footnote',$footnote);
-              }
-              if (@$graIndex) {// placed it on the previous grapheme - - - deprecate
+              
+              if (isset($graIndex) && $graIndex) {// placed it on the previous grapheme - - - deprecate
                 $this->_graphemes[$graIndex-1]->storeScratchProperty('footnote',$footnote);
                 $footnote = null; // stop from being attach to next grapheme
               }
@@ -1143,7 +1144,7 @@ class Parser {
                 $curCompound->setComponentIDs(array('tok:'.$tokTempID));
                 $curCompound->setVisibilityIDs($vis);
                 $curCompound->setOwnerID($ownerID);
-                if (isset($attr) && $attr){
+                if (isset($attr) && $attr) {
                   $curCompound->setAttributionIDs($attr);
                 }
                 if(array_key_exists("Compound",$lnCfg) && array_key_exists("scratch",$lnCfg["Compound"])) {
@@ -1157,7 +1158,7 @@ class Parser {
                 $this->_compounds[$cmpIndex-1]->storeScratchProperty("nonce","cmp_".$cmpTempID.$parseGUID);
                 $this->_compounds[$cmpIndex-1]->storeScratchProperty("cknLine",$ckn.".$lineMask");
 //                $this->_tokens[$tokIndex-1]->setCompoundIDs(array($cmpTempID));
-                if (@$curStructDivSeqIndex) { //there is a division marker so remove the previous token and add compound id
+                if (isset($curStructDivSeqIndex) && $curStructDivSeqIndex) { //there is a division marker so remove the previous token and add compound id
                   $entityIDs = $this->_sequences[$curStructDivSeqIndex-1]->getEntityIDs();
                   $lastentityGID = array_pop($entityIDs);
                   if ($lastentityGID == "tok:$tokTempID"){//when can replace the token with compound globalID
@@ -1170,7 +1171,7 @@ class Parser {
                 if (isset($curQuoteSeqIndex) && $curQuoteSeqIndex) { //there is a quote seq so remove the previous token and add compound id
                   $entityIDs = $curQuoteSequence->getEntityIDs();
                   $lastentityGID = array_pop($entityIDs);
-                  if ((!@$lastentityGID && $cmpTempID) || $lastentityGID == "tok:$tokTempID"){//we can replace the token with compound globalID
+                  if ((!(isset($lastentityGID) && $lastentityGID) && $cmpTempID) || $lastentityGID == "tok:$tokTempID"){//we can replace the token with compound globalID
                     array_push($entityIDs,"cmp:".$cmpTempID);
                     $curQuoteSequence->setEntityIDs($entityIDs);
                   }else{//we are not in sych raise an error
@@ -1186,7 +1187,7 @@ class Parser {
                     $usePrev = false;
                   }
                   $lastentityGID = array_pop($entityIDs);
-                  if ((!@$lastentityGID && $cmpTempID) || $lastentityGID == "tok:$tokTempID"){//when can replace the token with compound globalID
+                  if ((!(isset($lastentityGID) && $lastentityGID) && $cmpTempID) || $lastentityGID == "tok:$tokTempID"){//when can replace the token with compound globalID
                     array_push($entityIDs,"cmp:".$cmpTempID);
                     if ($usePrev) {
                       $prevTokLineSequence->setEntityIDs($entityIDs);
@@ -1234,7 +1235,7 @@ class Parser {
                       if ((!defined("USESKTSORT")|| !USESKTSORT) && !array_key_exists("srt",$graphemeCharacterMap[$char][$char2][$char3][$char4])){ // invalid sequence
                         array_push($this->_errors,"incomplete transcription at character $i line $lineMask, grapheme $char$char2$char3$char4 has no sort code"." cfg line # $cfgLnCnt");
                         return false;
-                      }else{//found valid grapheme, save it
+                      } else {//found valid grapheme, save it
                         $str = $char.$char2.$char3.$char4;
                         $ustr = $testChar.$char2.$char3.$char4;
                         $typ = $graphemeCharacterMap[$char][$char2][$char3][$char4]['typ'];
@@ -1244,10 +1245,10 @@ class Parser {
                           $srt = $graphemeCharacterMap[$char][$char2][$char3][$char4]['srt'];
                         }
                       }
-                    }else if ((!defined("USESKTSORT")|| !USESKTSORT) && !array_key_exists("srt",$graphemeCharacterMap[$char][$char2][$char3])){ // invalid sequence
+                    } else if ((!defined("USESKTSORT")|| !USESKTSORT) && !array_key_exists("srt",$graphemeCharacterMap[$char][$char2][$char3])){ // invalid sequence
                       array_push($this->_errors,"incomplete transcription at character $i line $lineMask, grapheme $char$char2$char3 needs follow-on char and $char4 is not a valid follow-on"." cfg line # $cfgLnCnt");
                       return false;
-                    }else{//found valid grapheme, save it
+                    } else {//found valid grapheme, save it
                       $str = $char.$char2.$char3;
                       $ustr = $testChar.$char2.$char3;
                       $typ = $graphemeCharacterMap[$char][$char2][$char3]['typ'];
@@ -1257,10 +1258,10 @@ class Parser {
                         $srt = $graphemeCharacterMap[$char][$char2][$char3]['srt'];
                       }
                     }
-                  }else if ((!defined("USESKTSORT")|| !USESKTSORT) && !array_key_exists("srt",$graphemeCharacterMap[$char][$char2])){ // invalid sequence
+                  } else if ((!defined("USESKTSORT")|| !USESKTSORT) && !array_key_exists("srt",$graphemeCharacterMap[$char][$char2])){ // invalid sequence
                     array_push($this->_errors,"incomplete transcription at character $i line $lineMask, grapheme $char$char2 needs follow-on char and $char3 is not a valid follow-on"." cfg line # $cfgLnCnt");
                     return false;
-                  }else{//found valid grapheme, save it
+                  } else {//found valid grapheme, save it
                     $str = $char.$char2;
                     $ustr = $testChar.$char2;
                     if (array_key_exists("typ",$graphemeCharacterMap[$char][$char2])) {
@@ -1274,10 +1275,10 @@ class Parser {
                       $srt = $graphemeCharacterMap[$char][$char2]['srt'];
                     }
                   }
-                }else if ((!defined("USESKTSORT")|| !USESKTSORT) && !array_key_exists("srt",$graphemeCharacterMap[$char])){ // invalid sequence
+                } else if ((!defined("USESKTSORT")|| !USESKTSORT) && !array_key_exists("srt",$graphemeCharacterMap[$char])){ // invalid sequence
                   array_push($this->_errors,"incomplete transcription at character $i, grapheme $char needs follow-on char and $char2 is not a valid follow-on"." cfg line # $cfgLnCnt");
                   return false;
-                }else{//found valid grapheme, save it
+                } else {//found valid grapheme, save it
                   $str = $char;
                   $ustr = $testChar;
                   if (array_key_exists("typ",$graphemeCharacterMap[$char])) {
@@ -1317,7 +1318,7 @@ class Parser {
                 }
                 if ($typ == "N") {
                   $numberToken = true;
-                }else if (isset($prevNumberTokIndex) && $prevNumberTokIndex){// non number and had previous number so clear number state info and end any compound
+                }else if (isset($prevNumberTokIndex) && $prevNumberTokIndex) {// non number and had previous number so clear number state info and end any compound
                   $prevNumberTokIndex = $prevNumberTokTempID = null;
                   $cmpIndex = $cmpTempID = null;
                   $numberToken = false;
@@ -1383,19 +1384,19 @@ class Parser {
                   $curSegment->setBaselineIDs(array($blnTempID));
                   $curSegment->setVisibilityIDs($vis);
                   $curSegment->setOwnerID($ownerID);
-                  if (isset($attr) && $attr){
+                  if (isset($attr) && $attr) {
                     $curSegment->setAttributionIDs($attr);
                   }
                   if (isset($carrierIndex) && $carrierIndex) {
                     $curSegment->setStringPos(array(array($posSegStart-1,$posSegStop)));
                     $carrierIndex = null;
-                  }else{
+                  } else {
                     $curSegment->setStringPos(array(array($posSegStart,$posSegStop)));
                   }
                   array_push($this->_segments,$curSegment);
                   $segIndex = count($this->_segments);
                   $segTempID = 0 - $segIndex;
-                  if (isset($spnIndex) && $spnIndex){
+                  if (isset($spnIndex) && $spnIndex) {
                     $segmentIDs = $this->_spans[$spnIndex-1]->getSegmentIDs();
                     array_push($segmentIDs,$segTempID);
                     $this->_spans[$spnIndex-1]->setSegmentIDs($segmentIDs);
@@ -1410,7 +1411,7 @@ class Parser {
                     $curSyllable->storeScratchProperty('footnote',$sfootnote);
                     $sfootnote = null; // stop from being attach to next syllable
                   }
-                  if (isset($attr) && $attr){
+                  if (isset($attr) && $attr) {
                     $curSyllable->setAttributionIDs($attr);
                   }
                   if (strpos($tcmState,"I") !== false) {
@@ -1418,7 +1419,7 @@ class Parser {
                   }
                   if (isset($carrierTempID) && $carrierTempID) {
                     $curSyllable->setGraphemeIDs(array($carrierTempID,$graTempID));
-                  }else{
+                  } else {
                     $curSyllable->setGraphemeIDs(array($graTempID));
                   }
                   array_push($this->_syllableClusters,$curSyllable);
@@ -1432,26 +1433,26 @@ class Parser {
                   }
                   //punctuation is a token by itself and terminates previous token or compound
                   //when previous is punctuation be sure to start new token
-                  if($typ == "P" || $prevState == "P"){
+                  if ($typ == "P" || $prevState == "P") {
                     $tokIndex = null;
                     $cmpIndex = null;
                   }
                   //create Token if no cur token
-                  if(@!$tokIndex){
+                  if (!(isset($tokIndex) && $tokIndex)) {
                     $curToken = new Token();
                     $curToken->setVisibilityIDs($vis);
                     $curToken->setOwnerID($ownerID);
-                    if (isset($attr) && $attr){
+                    if (isset($attr) && $attr) {
                       $curToken->setAttributionIDs($attr);
                     }
                     if (isset($carrierTempID) && $carrierTempID) {
                       $curToken->setGraphemeIDs(array($carrierTempID,$graTempID));
                       $curToken->setToken("ʔ".$str);
-                    }else{
+                    } else {
                       $curToken->setGraphemeIDs(array($graTempID));
                       $curToken->setToken($str);
                     }
-                    if(array_key_exists("Token",$lnCfg) && array_key_exists("scratch",$lnCfg["Token"])) {
+                    if (array_key_exists("Token",$lnCfg) && array_key_exists("scratch",$lnCfg["Token"])) {
                       foreach ( $lnCfg["Token"]["scratch"] as $key => $value) {
                         $curToken->storeScratchProperty($key,$value);
                       }
@@ -1466,12 +1467,12 @@ class Parser {
                       $heading = null;
                     }
                     //if compound update with new token
-                    if (isset($cmpIndex) && $cmpIndex){
+                    if (isset($cmpIndex) && $cmpIndex) {
                       $componentIDs = $this->_compounds[$cmpIndex-1]->getComponentIDs();
                       array_push($componentIDs,"tok:".$tokTempID);
                       $this->_compounds[$cmpIndex-1]->setComponentIDs($componentIDs);
 //                      $this->_tokens[$tokIndex-1]->setCompoundIDs(array($cmpTempID));
-                    }else if (isset($numberToken) && $numberToken && isset($prevNumberTokIndex) && $prevNumberTokIndex){//we have a number Tok with a previous number Tok and no compound
+                    } else if (isset($numberToken) && $numberToken && isset($prevNumberTokIndex) && $prevNumberTokIndex) {//we have a number Tok with a previous number Tok and no compound
                       //create number compound
                       $curCompound = new Compound();
                       $curCompound->setComponentIDs(array('tok:'.$prevNumberTokTempID,'tok:'.$tokTempID));
@@ -1480,7 +1481,7 @@ class Parser {
                       if (isset($attr) && $attr) {
                         $curCompound->setAttributionIDs($attr);
                       }
-                      if(array_key_exists("Compound",$lnCfg) && array_key_exists("scratch",$lnCfg["Compound"])) {
+                      if (array_key_exists("Compound",$lnCfg) && array_key_exists("scratch",$lnCfg["Compound"])) {
                         foreach ( $lnCfg["Compound"]["scratch"] as $key => $value) {
                           $curCompound->storeScratchProperty($key,$value);
                         }
@@ -1498,7 +1499,7 @@ class Parser {
                         if ($lastentityGID == "tok:$prevNumberTokTempID"){//when can replace the token with compound globalID
                           array_push($entityIDs,"cmp:".$cmpTempID);
                           $this->_sequences[$curStructDivSeqIndex-1]->setEntityIDs($entityIDs);
-                        }else{//we are not in sych raise an error
+                        } else {//we are not in sych raise an error
                           array_push($this->_errors,"division sequence - compound number creation (line $lineMask character $i) last entity $lastentityGID does not match tok:$prevNumberTokTempID"." cfg line # $cfgLnCnt");
                         }
                       }
@@ -1508,26 +1509,29 @@ class Parser {
                         if ($lastentityGID == "tok:$prevNumberTokTempID"){//when can replace the token with compound globalID
                           array_push($entityIDs,"cmp:".$cmpTempID);
                           $curQuoteSequence->setEntityIDs($entityIDs);
-                        }else{//we are not in sych raise an error
+                        } else {//we are not in sych raise an error
                           array_push($this->_errors,"division sequence - compound number creation (line $lineMask character $i) last entity $lastentityGID does not match tok:$prevNumberTokTempID"." cfg line # $cfgLnCnt");
                         }
                       }
                       if (isset($tokLineSeqIndex) && $tokLineSeqIndex) { //there is a line seq so remove the previous token and add compound id
                         $entityIDs = $curTokLineSequence->getEntityIDs();
                         $lastentityGID = array_pop($entityIDs);
-                        if ( !@$lastentityGID && $prevNumberTokIndex || @$compoundWrapID == $cmpTempID) { // new line sequence and a wrapping number compound
+                        if ( !(isset($lastentityGID) && $lastentityGID) && $prevNumberTokIndex || 
+                              isset($compoundWrapID) && $compoundWrapID == $cmpTempID) { // new line sequence and a wrapping number compound
                           $compoundWrapID = $cmpTempID; // track the compound and add token
                           array_push($entityIDs,"tok:".$tokTempID);
                           $curTokLineSequence->setEntityIDs($entityIDs);
                         } else if ($lastentityGID == "tok:$prevNumberTokTempID"){//when can replace the token with compound globalID
                           array_push($entityIDs,"cmp:".$cmpTempID);
                           $curTokLineSequence->setEntityIDs($entityIDs);
-                        }else{//we are not in sych raise an error
+                        } else {//we are not in sych raise an error
                           array_push($this->_errors,"line sequence - compound number creation (line $lineMask character $i) last entity $lastentityGID does not match tok:$tokTempID"." cfg line # $cfgLnCnt");
                         }
                       }
-                    }else if (@$tokLineSeqIndex || @$curStructDivSeqIndex || $curQuoteSeqIndex) { //there is a division marker and not in compound so add token to sequence
-                      if (@$curStructDivSeqIndex) {
+                    } else if (isset($tokLineSeqIndex) && $tokLineSeqIndex || 
+                              isset($curStructDivSeqIndex) && $curStructDivSeqIndex || 
+                              isset($curQuoteSeqIndex) && $curQuoteSeqIndex) { //there is a division marker and not in compound so add token to sequence
+                      if (isset($curStructDivSeqIndex) && $curStructDivSeqIndex) {
                         $entityIDs = $this->_sequences[$curStructDivSeqIndex-1]->getEntityIDs();
                         array_push($entityIDs,"tok:".$tokTempID);
                         $this->_sequences[$curStructDivSeqIndex-1]->setEntityIDs($entityIDs);
@@ -1565,16 +1569,16 @@ class Parser {
                   $graphemes = $this->_syllableClusters[$sclIndex-1]->getGraphemeIDs();
                   array_push($graphemes,$graTempID);
                   $this->_syllableClusters[$sclIndex-1]->setGraphemeIDs($graphemes);
-                  if(!isset($tokIndex) && $tokIndex){// no token so must be intra syllable split
+                  if (!isset($tokIndex) && $tokIndex) {// no token so must be intra syllable split
                     $curToken = new Token();
                     $curToken->setGraphemeIDs(array($graTempID));
                     $curToken->setToken($str);
                     $curToken->setVisibilityIDs($vis);
                     $curToken->setOwnerID($ownerID);
-                    if (@$attr){
+                    if (isset($attr) && $attr) {
                       $curToken->setAttributionIDs($attr);
                     }
-                    if(array_key_exists("Token",$lnCfg) && array_key_exists("scratch",$lnCfg["Token"])) {
+                    if (array_key_exists("Token",$lnCfg) && array_key_exists("scratch",$lnCfg["Token"])) {
                       foreach ( $lnCfg["Token"]["scratch"] as $key => $value) {
                         $curToken->storeScratchProperty($key,$value);
                       }
@@ -1585,12 +1589,14 @@ class Parser {
                     $this->_tokens[$tokIndex-1]->storeScratchProperty("nonce","tok_".$tokTempID.$parseGUID);
                     $this->_tokens[$tokIndex-1]->storeScratchProperty("cknLine",$ckn.".$lineMask");
                     //if compound update with new token
-                    if (isset($cmpIndex) && $cmpIndex){
+                    if (isset($cmpIndex) && $cmpIndex) {
                       $components = $this->_compounds[$cmpIndex-1]->getComponentIDs();
                       array_push($components,"tok:".$tokTempID);
                       $this->_compounds[$cmpIndex-1]->setComponentIDs($components);
-                    }else if (isset($tokLineSeqIndex) && $tokLineSeqIndex || isset($curStructDivSeqIndex) && $curStructDivSeqIndex || isset($curQuoteSeqIndex) && $curQuoteSeqIndex) { //there is a division marker and not in compound so add token to sequence
-                      if (isset($curStructDivSeqIndex)) { //there is a structural division marker and not in compound so add token to sequence
+                    } else if (isset($tokLineSeqIndex) && $tokLineSeqIndex || 
+                              isset($curStructDivSeqIndex) && $curStructDivSeqIndex || 
+                              isset($curQuoteSeqIndex) && $curQuoteSeqIndex) { //there is a division marker and not in compound so add token to sequence
+                      if (isset($curStructDivSeqIndex) && $curStructDivSeqIndex) { //there is a structural division marker and not in compound so add token to sequence
                           $entityIDs = $this->_sequences[$curStructDivSeqIndex-1]->getEntityIDs();
                           array_push($entityIDs,"tok:".$tokTempID);
                           $this->_sequences[$curStructDivSeqIndex-1]->setEntityIDs($entityIDs);
@@ -1606,7 +1612,7 @@ class Parser {
                           $curTokLineSequence->setEntityIDs($entityIDs);
                       }
                     }
-                  }else{// update token with new grapheme
+                  } else {// update token with new grapheme
                     $graphemes = $this->_tokens[$tokIndex-1]->getGraphemeIDs();
                     array_push($graphemes,$graTempID);
                     $this->_tokens[$tokIndex-1]->setGraphemeIDs($graphemes);
