@@ -1157,7 +1157,7 @@ MANAGERS.LayoutManager.prototype = {
                      id:paneID,
                      editDiv:$("."+paneID,this.curLayout)[0]
                    }
-          if (catalog.value == "GD" || catalog.value == "MW") {
+          if (catalog.value == "GD" || catalog.value == "MW" || catalog.value == "MG") {
             catCode = catalog.value.toLowerCase();
             config['dictionary'] = catCode;
             config['url'] = basepath+'/plugins/dictionary/index.php?dictionary='+catCode+'&searchstring=a&searchtype=F&strJSON={"dictionary":"'+catCode+'","mode":"getdictionarystats"}';
