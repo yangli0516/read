@@ -1279,17 +1279,16 @@ MANAGERS.LayoutManager.prototype = {
             });
           break;
         case 'cat'://dictionary or glossary
-          var catCode, catalog = this.dataMgr.getEntity('cat', entID);
-          config = {
-            eventMgr: layoutMgr,
-            layoutMgr: layoutMgr,
-            entGID: 'wl-' + entGID,
-            catID: entID,
-            dataMgr: this.dataMgr,
-            id: paneID,
-            editDiv: $("." + paneID, this.curLayout)[0]
-          }
-          if (catalog.value == "GD" || catalog.value == "MW") {
+          var catCode, catalog = this.dataMgr.getEntity('cat',entID);
+          config = { eventMgr: layoutMgr,
+                     layoutMgr: layoutMgr,
+                     entGID:'wl-'+entGID,
+                     catID: entID,
+                     dataMgr: this.dataMgr,
+                     id:paneID,
+                     editDiv:$("."+paneID,this.curLayout)[0]
+                   }
+          if (catalog.value == "GD" || catalog.value == "MW" || catalog.value == "MG") {
             catCode = catalog.value.toLowerCase();
             config['dictionary'] = catCode;
             config['url'] = basepath + '/plugins/dictionary/index.php?dictionary=' + catCode + '&searchstring=a&searchtype=F&strJSON={"dictionary":"' + catCode + '","mode":"getdictionarystats"}';
