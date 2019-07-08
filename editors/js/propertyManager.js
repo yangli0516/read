@@ -90,10 +90,15 @@ MANAGERS.PropertyManager.prototype = {
         entPropVECfg = {dataMgr: this.dataMgr,
                       id:this.id,
                       propMgr: this,
-                      ednID: this.ednID,
                       editor: this.controlEditor,
                       contentDiv:this.propVEDiv.get(0)
                     };
+        if (this.ednID) {
+          entPropVECfg['ednID'] = this.ednID;
+        }
+        if (this.config.entGID) {
+          entPropVECfg['entGID'] = this.config.entGID;
+        }
         if (this.config.hideSubType) {
           entPropVECfg['hideSubType'] = true;
         }

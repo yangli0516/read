@@ -47,7 +47,7 @@ var EDITORS = EDITORS || {};
 */
 
 EDITORS.ImageVE =  function(imgVECfg) {
-  var imgVE = this, imgFilename,imgSrc,
+  var imgVE = this, imgFilename,imgSrc, entID,
       imgContainerDiv = $('<div id="imgContainerDiv" />');
   //read configuration and set defaults
   this.config = imgVECfg;
@@ -65,6 +65,13 @@ EDITORS.ImageVE =  function(imgVECfg) {
   this.navPositionTop = imgVECfg['navPositionTop'] ? imgVECfg['navPositionTop']:10;
   this.navPositionLeft = imgVECfg['navPositionLeft'] ? imgVECfg['navPositionLeft']:10;
   this.editDiv = imgVECfg['imageEditDiv']?imgVECfg['imageEditDiv']: null;
+  this.blnEntity = imgVECfg['baseline']?imgVECfg['baseline']: null;
+  this.imgEntity = imgVECfg['imgEntity']?imgVECfg['imgEntity']: null;
+  if (this.blnEntity) {
+    entGID = "bln:"+ this.blnEntity.id;
+  } else if (this.imgEntity) {
+    entGID = "img:"+this.imgEntity.id;
+  }
   this.splitterDiv = $('<div id="'+this.id+'splitter"/>');
   this.propertyMgrDiv = $('<div id="'+this.id+'propManager" class="propertyManager"/>');
   this.splitterDiv.append(imgContainerDiv);
@@ -77,15 +84,15 @@ EDITORS.ImageVE =  function(imgVECfg) {
                                     showSplitBar:false,
                                     panels: [{ size: '60%', min: '250', collapsible: false},
                                              { size: '40%', min: '150', collapsed: true, collapsible: true}] });
-  this.propMgr = new MANAGERS.PropertyManager({edID: this.id,
+  this.propMgr = new MANAGERS.PropertyManager({id: this.id,
                                                propertyMgrDiv: this.propertyMgrDiv,
                                                editor: imgVE,
+                                               entGID: entGID,
+                                               propVEType: "entPropVE",
                                                dataMgr: this.dataMgr,
                                                splitterDiv: this.splitterDiv });
   this.displayProperties = this.propMgr.displayProperties;
   this.imgEditContainer = $('#imgContainerDiv',this.editDiv).get(0);
-  this.blnEntity = imgVECfg['baseline']?imgVECfg['baseline']: null;
-  this.imgEntity = imgVECfg['imgEntity']?imgVECfg['imgEntity']: null;
   this.navParent = imgVECfg['imageEditDiv']?imgVECfg['imageEditDiv']: document.getElementById('body');
   this.zoomFactorRange = { min:20,max:150,inc:2 };
   this.polygons = [];
@@ -960,6 +967,16 @@ savePolygons: function () {
       });
     }
 
+    var btnShowPropsName = this.id+'showprops';
+    this.propertyBtnDiv = $('<div class="toolbuttondiv">' +
+                            '<button class="toolbutton iconbutton" id="'+btnShowPropsName+
+                              '" title="Show/Hide property panel">&#x25E8;</button>'+
+                            '<div class="toolbuttonlabel">Properties</div>'+
+                           '</div>');
+    this.propertyBtn = $('#'+btnShowPropsName,this.propertyBtnDiv);
+    this.propertyBtn.unbind('click').bind('click',function(e) {
+                                           imgVE.showProperties(!$(this).hasClass("showUI"));
+                                         });
 
     var btnImgInvertName = this.id+'ImgInvert';
     this.imgInvertBtnDiv = $('<div class="toolbuttondiv">' +
@@ -1019,6 +1036,7 @@ savePolygons: function () {
     if (this.blnEntity) {
       this.viewToolbar.append(this.showSegBtnDiv);
     }
+    this.viewToolbar.append(this.propertyBtnDiv);
     this.viewToolbar.append(this.imgInvertBtnDiv)
                 .append(this.imgStretchBtnDiv)
                 .append(this.imgReduceBtnDiv)
@@ -1063,6 +1081,26 @@ savePolygons: function () {
     this.vpSize = { width: vpWidth || 50, height: vpHeight || 50 };
     this.vpLastLoc =  { x: 0, y: 0 };
   },
+
+
+/**
+* turn on or off the property pane
+*
+* @param boolean bShow Show property pane
+*/
+
+showProperties: function (bShow) {
+  var imgVE = this;
+  if (imgVE.propMgr &&
+      typeof imgVE.propMgr.displayProperties == 'function'){
+        imgVE.propMgr.displayProperties(bShow);
+    if (imgVE.propertyBtn.hasClass("showUI") && !bShow) {
+      imgVE.propertyBtn.removeClass("showUI");
+    } else if (!imgVE.propertyBtn.hasClass("showUI") && bShow) {
+      imgVE.propertyBtn.addClass("showUI");
+    }
+  }
+},
 
 
 /**
