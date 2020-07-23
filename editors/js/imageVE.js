@@ -94,7 +94,7 @@ EDITORS.ImageVE =  function(imgVECfg) {
   this.displayProperties = this.propMgr.displayProperties;
   this.imgEditContainer = $('#imgContainerDiv',this.editDiv).get(0);
   this.navParent = imgVECfg['imageEditDiv']?imgVECfg['imageEditDiv']: document.getElementById('body');
-  this.zoomFactorRange = { min:20,max:150,inc:2 };
+  this.zoomFactorRange = { min:5,max:200,inc:2 };
   this.polygons = [];
   this.polygonLookup = {};
   this.fadeColors = {};
@@ -137,7 +137,13 @@ EDITORS.ImageVE =  function(imgVECfg) {
           maxOrdinal = segment.ordinal;
         }
         //WARNING todo add code for multiple polygon boundary
-        this.addImagePolygon(segment.boundary[0],"seg"+segID,false,segment['sclIDs'],segment.center,(segment.ordinal?segment.ordinal:null));//WARNING!! todo code change boundary can be multiple polygons
+        if (segment.boundary && segment.boundary.length) {
+          for (j=0; j<segment.boundary.length;j++){
+            this.addImagePolygon(segment.boundary[j],"seg"+segID,false,segment['sclIDs'],
+                                  segment.center,(segment.ordinal?segment.ordinal:null),(segment.code?segment.code:null),
+                                  (segment.loc?segment.loc:null));//WARNING!! todo code change boundary can be multiple polygons
+          }
+        }
       }
     }
     this.maxOrdinal = (1 + parseInt(maxOrdinal));
@@ -356,85 +362,44 @@ savePolygons: function () {
 */
 
   savePolygon: function () {
-    var imgVE = this, path = imgVE.getPath(),indx;
-    if (path && path.length > 2) {
-      indx = imgVE.addImagePolygon(path,"new"+imgVE.newPolyCounter++,true);
-      imgVE.newPolyIndices.push(indx);
-    }
-    imgVE.clearPath();
-    var i,
-        savedata = {seg:[]},
-        polygon, segData,
-        cnt = imgVE.newPolyIndices.length;
-    if (cnt && imgVE.blnEntity) { //save segments to baseline
-      var blnID = imgVE.blnEntity.id, setOrdVal = parseInt(imgVE.ordinalSetInput.val());
-      //for each new or dirty segment polygon
-      for(i=0; i<cnt; i++) {
-        polygon = imgVE.polygons[imgVE.newPolyIndices[i]-1];
-        //build combined data structure calculate url cropped
-        segData = {seg_id:polygon.label,seg_baseline_ids:'{'+blnID+'}',//warning seg_id assumes new##  not a seg##  id
-                   seg_image_pos:'{"'+JSON.stringify(polygon.polygon).replace(/\[/g,"(").replace(/\]/g,")")+'"}',
-                   seg_layer:1,seg_visibility_ids:"{3}"};
-        if ( setOrdVal ) {
-          scratchObj = {"blnOrdinal": "" + setOrdVal};
-          segData["seg_scratch"] = JSON.stringify(scratchObj);
-          setOrdVal++;
-          imgVE.ordinalSetInput.val(setOrdVal);
-        }
-        savedata.seg.push( segData);
+    var imgVE = this, path = imgVE.getPath(), setOrdVal,
+        i, savedata = {}, polygon, segData, newPolyIndex,
+        blnID, cnt;
+    if (path && path.length > 2 && imgVE.blnEntity) {
+      newPolyIndex = imgVE.addImagePolygon(path,"new"+imgVE.newPolyCounter++,true);
+      imgVE.clearPath();
+      blnID = imgVE.blnEntity.id;
+      setOrdVal = parseInt(imgVE.ordinalSetInput.val());
+      polygon = imgVE.polygons[newPolyIndex-1];
+      savedata = {segID:polygon.label,//warning seg_id assumes new##  not a seg##  id
+                  baselineIDs:'{'+blnID+'}',
+                  boundary:'{"'+JSON.stringify(polygon.polygon).replace(/\[/g,"(").replace(/\]/g,")")+'"}',
+                  layer:1,
+                  visibilityIDs:"{3}"};
+      if ( setOrdVal ) {
+        savedata["ordinal"] = setOrdVal;
+        setOrdVal++;
+        imgVE.ordinalSetInput.val(setOrdVal);
       }
       //reset new indices
       imgVE.newPolyIndices = [];
       //save polygon segment
       $.ajax({
           dataType: 'json',
-          url: basepath+'/services/saveEntityData.php?db='+dbName, //TODO: convert this to saveSegment service with update cache model
-          data: 'data='+JSON.stringify(savedata),
-          asynch: false,
+          url: basepath+'/services/saveSegment.php?db='+dbName, //TODO: convert this to saveSegment service with update cache model
+          data: savedata,
+          asynch: true,
           success: function (data, status, xhr) {
-              if (typeof data == 'object' && data.segment && data.segment.success) {
-                if (data.entities && data.entities.insert) {
-                  imgVE.dataMgr.updateLocalCache(data,null);
-                }
-                if (data['segment'].columns &&
-                    data['segment'].records[0] &&
-                    data['segment'].columns.indexOf('seg_id') > -1) {
-                  var record, segID, segIDToTemp = {}, tempID, polygonObj, blnIDs, scratch, blnOrd,
-                      pkeyIndex = data['segment'].columns.indexOf('seg_id'),
-                      blnIdsIndex = data['segment'].columns.indexOf('seg_baseline_ids'),
-                      imgPosIndex = data['segment'].columns.indexOf('seg_image_pos'),
-                      scratchIndex = data['segment'].columns.indexOf('seg_scratch'),
-                      layerIndex = data['segment'].columns.indexOf('seg_layer');
-                  cnt = data['segment'].records.length;
-                  for (tempID in data['segment'].tempIDMap) {
-                    segIDToTemp[data['segment'].tempIDMap[tempID]] = tempID;
-                  }
-                  // for each record
-                  for(i=0; i<cnt; i++) {
-                    record = data['segment'].records[i];
-                    segID = record[pkeyIndex];
-                    scratch = JSON.parse(record[scratchIndex]);
-                    if (scratch["blnOrdinal"]) {
-                      blnOrd = scratch["blnOrdinal"];
-                    }
+              if (typeof data == 'object' && data.success && data.entities) {
+                imgVE.dataMgr.updateLocalCache(data,null);
+                if (data.tempIDMap) {
+                  for (segID in data.tempIDMap) {
+                    tempID = data.tempIDMap[segID];
+                    segment = imgVE.dataMgr.getEntity('seg',segID);
                     segLabel = 'seg'+segID;
-                    // save new info to imgVE.dataMgr.entities[seg][id]
-                    if (imgVE.dataMgr.entities && !imgVE.dataMgr.entities.seg) {
-                      imgVE.dataMgr.entities['seg'] = {};
-                    }
-                    imgVE.dataMgr.entities['seg'][segID] = {baselineIDs: record[blnIdsIndex],
-                                              boundary: record[imgPosIndex],
-                                              center:UTILITY.getCentroid(record[imgPosIndex]),
-                                              layer: record[layerIndex],
-                                              surfaceID: imgVE.blnEntity.surfaceID,
-                                              id:segID
-                                              };
-                    if (blnOrd) {
-                      imgVE.dataMgr.entities['seg'][segID]["ordinal"] = blnOrd;
-                    }
                     //update baseline entity
-                    blnIDs = record[blnIdsIndex];
-                    if (blnIDs.length) {
+                    blnIDs = segment.baselineIDs;
+                    if (blnIDs && blnIDs.length) {
                       for (i =0; i<blnIDs.length; i++) {
                         baseline = imgVE.dataMgr.getEntity('bln',blnIDs[i]);
                         if (baseline && baseline.segIDs && baseline.segIDs.indexOf(segID) == -1) {
@@ -443,14 +408,20 @@ savePolygons: function () {
                       }
                     }
                     // add new lookup seg:id for newX index
-                    imgVE.polygonLookup[segLabel] = imgVE.polygonLookup[segIDToTemp[segID]];
-                    delete imgVE.polygonLookup[segIDToTemp[segID]];
+                    imgVE.polygonLookup[segLabel] = imgVE.polygonLookup[tempID];
+                    delete imgVE.polygonLookup[tempID];
                     // change polygon label of newX and color
                     imgVE.polygons[imgVE.polygonLookup[segLabel]-1].label = segLabel;
                     imgVE.polygons[imgVE.polygonLookup[segLabel]-1].color = "red";
                     imgVE.polygons[imgVE.polygonLookup[segLabel]-1].hidden = true;
-                    if (blnOrd) {
-                      imgVE.polygons[imgVE.polygonLookup[segLabel]-1].order = blnOrd;
+                    if (segment.ordinal) {
+                      imgVE.polygons[imgVE.polygonLookup[segLabel]-1].order = segment.ordinal;
+                    }
+                    if (segment.code) {
+                      imgVE.polygons[imgVE.polygonLookup[segLabel]-1].code = segment.code;
+                    }
+                    if (segment.loc) {
+                      imgVE.polygons[imgVE.polygonLookup[segLabel]-1].loc = segment.loc;
                     }
                     imgVE.selectedPolygons[segLabel] = 1;
                   }
@@ -479,10 +450,6 @@ savePolygons: function () {
                 if (data['error']) {
                   alert("An error occurred while trying to save to a segment record. Error: " + data[error]);
                 }
-//                if (data.entities) {
-                  //update data
-//                  imgVE.dataMgr.updateLocalCache(data,null);
-//                }
               }
           },// end success cb
           error: function (xhr,status,error) {
@@ -493,7 +460,7 @@ savePolygons: function () {
 
         //on success update polygons and polygonLooup with segment ids and data
     } else if (cnt && imgVE.imgEntity) { //save baseline
-      alert("save code for new baselines is under construction");
+      alert("save segment for images is under construction");
     }
   },
 
@@ -954,11 +921,23 @@ savePolygons: function () {
           this.title = "Show ordinal numbers";
         } else if ( this.textContent == "Numbers") {
           imgVE.showPolygonNumbers = true;
+          this.textContent = "Code";
+          this.title = "Show segment codes";
+        } else if ( this.textContent == "Code") {
+          imgVE.showPolygonNumbers = false;
+          imgVE.showPolygonCodes = true;
+          this.textContent = "Location";
+          this.title = "Show segment locations";
+        } else if ( this.textContent == "Location") {
+          imgVE.showPolygonCodes = false;
+          imgVE.showPolygonLocs = true;
           this.textContent = "Hide";
           this.title = "Hide image segments";
         } else {
           imgVE.viewAllPolygons = false;
           imgVE.showPolygonNumbers = false;
+          imgVE.showPolygonCodes = false;
+          imgVE.showPolygonLocs = false;
           this.textContent = "Show";
           this.title = "Show image segments";
         }
@@ -1185,7 +1164,7 @@ showProperties: function (bShow) {
 * @param center
 */
 
-  addImagePolygon: function (polygon,label,visible,linkIDs,center,ordinal) {
+  addImagePolygon: function (polygon,label,visible,linkIDs,center,ordinal,code,loc) {
     //todo add code to validate the polygon
     var clr = "green";
     if (!linkIDs){
@@ -1194,6 +1173,8 @@ showProperties: function (bShow) {
     this.polygons.push({polygon:polygon,
                         center: center?center:UTILITY.getCentroid(polygon),
                         order: ordinal?ordinal:null,
+                        code: code?code:null,
+                        loc: loc?loc:null,
                         color:clr,
                         width:1, //polygon width
                         label:label,
@@ -3029,7 +3010,7 @@ selectPolygons: function () {
         scaleX = imgVE.navCanvas.width/imgVE.vpSize.width*imgVE.imgCanvas.width/imgVE.image.width,
         offsetY = imgVE.vpLoc.y * imgVE.image.height / imgVE.navCanvas.height,
         scaleY = imgVE.navCanvas.height/imgVE.vpSize.height*imgVE.imgCanvas.height/imgVE.image.height;
-    this.imgContext.font = "1.4em arial";
+    this.imgContext.font = ""+ 1.4*Math.max(1,scaleY)+"em arial";
     this.imgContext.textAlign = "center";
     this.imgContext.textBaseline = "middle";
     for(i=0;i<this.polygons.length; i++) {
@@ -3040,19 +3021,33 @@ selectPolygons: function () {
         }
       }
       if ( this.orderSegMode != "on" ) {
-        this.imgContext.strokeStyle = polygon.hilite? "#DDDDDD" : (this.selectedPolygons[polygon.label]? "#DDDDDD" : (polygon.dirty? "orange":polygon.color));
+        this.imgContext.strokeStyle = polygon.hilite? "cyan" : (this.selectedPolygons[polygon.label]? "cyan" : (polygon.dirty? "orange":polygon.color));
         if (this.showPolygonNumbers && polygon.order) {// draw order numer if there is one
           this.imgContext.lineWidth = 1;
           this.imgContext.fillStyle = this.imgContext.strokeStyle;
           this.imgContext.fillText(polygon.order,(polygon.center[0] - offsetX)*scaleX,(polygon.center[1] - offsetY)*scaleY);
           this.imgContext.strokeText(polygon.order,(polygon.center[0] - offsetX)*scaleX,(polygon.center[1] - offsetY)*scaleY);
+        } else if (this.showPolygonCodes && polygon.code) {// draw code if there is one
+          this.imgContext.lineWidth = 1;
+          this.imgContext.fillStyle = this.imgContext.strokeStyle;
+          this.imgContext.fillText(polygon.code,(polygon.center[0] - offsetX)*scaleX,(polygon.center[1] - offsetY)*scaleY);
+          this.imgContext.strokeText(polygon.code,(polygon.center[0] - offsetX)*scaleX,(polygon.center[1] - offsetY)*scaleY);
+        } else if (this.showPolygonLocs && polygon.loc) {// draw code if there is one
+          this.imgContext.lineWidth = 1;
+          stylecolor = this.imgContext.strokeStyle;
+          this.imgContext.strokeStyle = "maroon";
+          this.imgContext.fillStyle = "maroon"; 
+          this.imgContext.fillText(polygon.loc,(polygon.center[0] - offsetX)*scaleX,(polygon.center[1] - offsetY)*scaleY);
+          this.imgContext.strokeText(polygon.loc,(polygon.center[0] - offsetX)*scaleX,(polygon.center[1] - offsetY)*scaleY);
+          this.imgContext.strokeStyle = stylecolor;
+          this.imgContext.fillStyle = stylecolor; 
         }
         this.imgContext.lineWidth = (this.selectedPolygons[polygon.label]? 3 : polygon.width); //polygon width
       } else {
-        if (this.showPolygonNumbers && polygon.order) {// draw order numer if there is one
+        if (this.showPolygonNumbers && polygon.order) {// draw order number if there is one
           this.imgContext.lineWidth = 1;
-          this.imgContext.strokeStyle = "#DDDDDD";
-          this.imgContext.fillStyle = "#DDDDDD";
+          this.imgContext.strokeStyle = "cyan";
+          this.imgContext.fillStyle = "cyan";
           this.imgContext.fillText(polygon.order,(polygon.center[0] - offsetX)*scaleX,(polygon.center[1] - offsetY)*scaleY);
           this.imgContext.strokeText(polygon.order,(polygon.center[0] - offsetX)*scaleX,(polygon.center[1] - offsetY)*scaleY);
           this.imgContext.lineWidth = 3 ;
@@ -3071,7 +3066,8 @@ selectPolygons: function () {
 
       this.imgContext.strokeStyle = "cyan";
       this.imgContext.lineWidth = 1 ;
-*/      this.imgContext.beginPath();
+*/      
+      this.imgContext.beginPath();
       this.imgContext.moveTo((polygon.polygon[0][0] - offsetX)*scaleX,(polygon.polygon[0][1] - offsetY)*scaleY);
       for (j=1; j < polygon.polygon.length; j++) {
         this.imgContext.lineTo((polygon.polygon[j][0] - offsetX)*scaleX,(polygon.polygon[j][1] - offsetY)*scaleY);
